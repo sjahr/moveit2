@@ -1,6 +1,6 @@
 
 robot_description: "robot_description"
-trajectory_operator_plugin_name: "moveit_hybrid_planning/NextWaypointSampler"
+trajectory_operator_plugin_name: "moveit_hybrid_planning/DynamicWindowOperator"
 solver_plugin_name: "moveit_hybrid_planning/HandleImminentCollision"
 local_planning_frequency: 100.0
 global_solution_topic: "global_trajectory"
