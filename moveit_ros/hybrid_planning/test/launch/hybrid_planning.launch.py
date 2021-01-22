@@ -27,9 +27,6 @@ def load_yaml(package_name, file_path):
         return None
 
 def generate_launch_description():
-    # moveit_cpp.yaml is passed by filename for now since it's node specific
-    moveit_cpp_yaml_file_name = get_package_share_directory('run_moveit_cpp') + "/config/moveit_cpp.yaml"
-
     # Component yaml files are grouped in separate namespaces
     robot_description_config = load_file('moveit_resources_panda_description', 'urdf/panda.urdf')
     robot_description = {'robot_description' : robot_description_config}
@@ -39,10 +36,6 @@ def generate_launch_description():
 
     kinematics_yaml = load_yaml('moveit_resources_panda_moveit_config', 'config/kinematics.yaml')
     robot_description_kinematics = { 'robot_description_kinematics' : kinematics_yaml }
-
-    controllers_yaml = load_yaml('run_moveit_cpp', 'config/controllers.yaml')
-    moveit_controllers = { 'moveit_simple_controller_manager' : controllers_yaml,
-                           'moveit_controller_manager': 'moveit_simple_controller_manager/MoveItSimpleControllerManager'}
 
     ompl_planning_pipeline_config = { 'ompl' : {
         'planning_plugin' : 'ompl_interface/OMPLPlanner',
@@ -119,8 +112,7 @@ def generate_launch_description():
                                   # TODO(JafarAbdi): Why this launch the two nodes (controller manager and the fake joint driver) with the same name!
                                   # name='fake_joint_driver_node',
                                   parameters=[{'controller_name': 'panda_arm_controller'},
-                                              os.path.join(get_package_share_directory("run_moveit_cpp"), "config", "panda_controllers.yaml"),
-                                              os.path.join(get_package_share_directory("run_moveit_cpp"), "config", "start_positions.yaml"),
+                                              os.path.join(get_package_share_directory("moveit_hybrid_planning"), "config", "fake_joint_driver.yaml"),
                                               robot_description]
                                   )
 
