@@ -19,17 +19,24 @@ find_package(trajectory_msgs REQUIRED)
 find_package(control_toolbox REQUIRED)
 
 set(LIBRARIES
+  # Core components
   moveit_hybrid_planning_manager
   moveit_local_planner_component
   moveit_global_planner_component
+
+  # Planner logic interface and implemenations
   planner_logic_interface
   single_plan_execution_plugin
-  trajectory_operator_interface
-  local_constraint_solver_interface
-  next_waypoint_sampler_plugin
-  single_plan_execution_plugin
-  decelerate_before_collision_plugin
   replan_invalidated_trajectory_plugin
+
+  # Trajectory operator interface and implementations
+  trajectory_operator_interface
+  next_waypoint_sampler_plugin
+  dynamic_window_operator_plugin
+
+  # Local constraint solver interface and implemenations
+  local_constraint_solver_interface
+  decelerate_before_collision_plugin
 )
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
@@ -82,6 +89,7 @@ pluginlib_export_plugin_description_file(moveit_hybrid_planning single_plan_exec
 pluginlib_export_plugin_description_file(moveit_hybrid_planning next_waypoint_sampler_plugin.xml)
 pluginlib_export_plugin_description_file(moveit_hybrid_planning decelerate_before_collision_plugin.xml)
 pluginlib_export_plugin_description_file(moveit_hybrid_planning replan_invalidated_trajectory_plugin.xml)
+pluginlib_export_plugin_description_file(moveit_hybrid_planning dynamic_window_operator_plugin.xml)
 
 ament_export_include_directories(include)
 ament_export_libraries(${LIBRARIES})
