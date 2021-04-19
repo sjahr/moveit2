@@ -54,18 +54,18 @@ JointConfiguration::JointConfiguration(const std::string& group_name, const std:
 {
 }
 
-moveit_msgs::Constraints JointConfiguration::toGoalConstraintsWithoutModel() const
+moveit_msgs::msg::Constraints JointConfiguration::toGoalConstraintsWithoutModel() const
 {
   if (!create_joint_name_func_)
   {
     throw JointConfigurationException("Create-Joint-Name function not set");
   }
 
-  moveit_msgs::Constraints gc;
+  moveit_msgs::msg::Constraints gc;
 
   for (size_t i = 0; i < joints_.size(); ++i)
   {
-    moveit_msgs::JointConstraint jc;
+    moveit_msgs::msg::JointConstraint jc;
     jc.joint_name = create_joint_name_func_(i);
     jc.position = joints_.at(i);
     gc.joint_constraints.push_back(jc);
@@ -74,7 +74,7 @@ moveit_msgs::Constraints JointConfiguration::toGoalConstraintsWithoutModel() con
   return gc;
 }
 
-moveit_msgs::Constraints JointConfiguration::toGoalConstraintsWithModel() const
+moveit_msgs::msg::Constraints JointConfiguration::toGoalConstraintsWithModel() const
 {
   if (!robot_model_)
   {
@@ -88,14 +88,14 @@ moveit_msgs::Constraints JointConfiguration::toGoalConstraintsWithModel() const
   return kinematic_constraints::constructGoalConstraints(state, state.getRobotModel()->getJointModelGroup(group_name_));
 }
 
-moveit_msgs::RobotState JointConfiguration::toMoveitMsgsRobotStateWithoutModel() const
+moveit_msgs::msg::RobotState JointConfiguration::toMoveitMsgsRobotStateWithoutModel() const
 {
   if (!create_joint_name_func_)
   {
     throw JointConfigurationException("Create-Joint-Name function not set");
   }
 
-  moveit_msgs::RobotState robot_state;
+  moveit_msgs::msg::RobotState robot_state;
   for (size_t i = 0; i < joints_.size(); ++i)
   {
     robot_state.joint_state.name.emplace_back(create_joint_name_func_(i));
@@ -117,22 +117,22 @@ robot_state::RobotState JointConfiguration::toRobotState() const
   return robot_state;
 }
 
-moveit_msgs::RobotState JointConfiguration::toMoveitMsgsRobotStateWithModel() const
+moveit_msgs::msg::RobotState JointConfiguration::toMoveitMsgsRobotStateWithModel() const
 {
   robot_state::RobotState start_state(toRobotState());
-  moveit_msgs::RobotState rob_state_msg;
+  moveit_msgs::msg::RobotState rob_state_msg;
   moveit::core::robotStateToRobotStateMsg(start_state, rob_state_msg, false);
   return rob_state_msg;
 }
 
-sensor_msgs::JointState JointConfiguration::toSensorMsg() const
+sensor_msgs::msg::JointState JointConfiguration::toSensorMsg() const
 {
   if (!create_joint_name_func_)
   {
     throw JointConfigurationException("Create-Joint-Name function not set");
   }
 
-  sensor_msgs::JointState state;
+  sensor_msgs::msg::JointState state;
   for (size_t i = 0; i < joints_.size(); ++i)
   {
     state.name.emplace_back(create_joint_name_func_(i));

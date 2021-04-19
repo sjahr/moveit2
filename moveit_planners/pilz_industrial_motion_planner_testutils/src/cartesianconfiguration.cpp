@@ -73,9 +73,9 @@ CartesianConfiguration::CartesianConfiguration(const std::string& group_name, co
   }
 }
 
-geometry_msgs::Pose CartesianConfiguration::toPose(const std::vector<double>& pose)
+geometry_msgs::msg::Pose CartesianConfiguration::toPose(const std::vector<double>& pose)
 {
-  geometry_msgs::Pose pose_msg;
+  geometry_msgs::msg::Pose pose_msg;
   pose_msg.position.x = pose.at(0);
   pose_msg.position.y = pose.at(1);
   pose_msg.position.z = pose.at(2);
@@ -87,14 +87,14 @@ geometry_msgs::Pose CartesianConfiguration::toPose(const std::vector<double>& po
   return pose_msg;
 }
 
-geometry_msgs::PoseStamped CartesianConfiguration::toStampedPose(const geometry_msgs::Pose& pose)
+geometry_msgs::msg::PoseStamped CartesianConfiguration::toStampedPose(const geometry_msgs::msg::Pose& pose)
 {
-  geometry_msgs::PoseStamped pose_stamped_msg;
+  geometry_msgs::msg::PoseStamped pose_stamped_msg;
   pose_stamped_msg.pose = pose;
   return pose_stamped_msg;
 }
 
-moveit_msgs::RobotState CartesianConfiguration::toMoveitMsgsRobotState() const
+moveit_msgs::msg::RobotState CartesianConfiguration::toMoveitMsgsRobotState() const
 {
   if (!robot_model_)
   {
@@ -121,7 +121,7 @@ moveit_msgs::RobotState CartesianConfiguration::toMoveitMsgsRobotState() const
   }
 
   // Conversion to RobotState msg type
-  moveit_msgs::RobotState robot_state_msg;
+  moveit_msgs::msg::RobotState robot_state_msg;
   moveit::core::robotStateToRobotStateMsg(rstate, robot_state_msg, true);
   return robot_state_msg;
 }
