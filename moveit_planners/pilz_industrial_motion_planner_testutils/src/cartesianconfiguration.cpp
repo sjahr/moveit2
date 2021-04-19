@@ -41,6 +41,8 @@
 #include <tf2_eigen/tf2_eigen.h>
 #endif
 
+#include <tf2_eigen/tf2_eigen.h>
+
 namespace pilz_industrial_motion_planner_testutils
 {
 CartesianConfiguration::CartesianConfiguration() : RobotConfiguration()
