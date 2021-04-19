@@ -67,7 +67,7 @@ CartesianConfiguration::CartesianConfiguration(const std::string& group_name, co
     throw std::invalid_argument(msg);
   }
 
-  if (robot_model && (!robot_state::RobotState(robot_model_).knowsFrameTransform(link_name_)))
+  if (robot_model && (!moveit::core::RobotState(robot_model_).knowsFrameTransform(link_name_)))
   {
     std::string msg{ "Tranform of \"" };
     msg.append(link_name).append("\" is unknown");
@@ -103,7 +103,7 @@ moveit_msgs::msg::RobotState CartesianConfiguration::toMoveitMsgsRobotState() co
     throw std::runtime_error("No robot model set");
   }
 
-  robot_state::RobotState rstate(robot_model_);
+  moveit::core::RobotState rstate(robot_model_);
   rstate.setToDefaultValues();
   if (hasSeed())
   {

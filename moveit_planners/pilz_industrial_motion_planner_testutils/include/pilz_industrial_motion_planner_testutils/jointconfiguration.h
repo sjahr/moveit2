@@ -86,7 +86,7 @@ public:
 
   sensor_msgs::msg::JointState toSensorMsg() const;
 
-  robot_state::RobotState toRobotState() const;
+  moveit::core::RobotState toRobotState() const;
 
   void setCreateJointNameFunc(CreateJointNameFunc create_joint_name_func);
 
