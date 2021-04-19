@@ -81,7 +81,7 @@ moveit_msgs::msg::Constraints JointConfiguration::toGoalConstraintsWithModel() c
     throw JointConfigurationException("No robot model set");
   }
 
-  robot_state::RobotState state(robot_model_);
+  moveit::core::RobotState state(robot_model_);
   state.setToDefaultValues();
   state.setJointGroupPositions(group_name_, joints_);
 
@@ -104,14 +104,14 @@ moveit_msgs::msg::RobotState JointConfiguration::toMoveitMsgsRobotStateWithoutMo
   return robot_state;
 }
 
-robot_state::RobotState JointConfiguration::toRobotState() const
+moveit::core::RobotState JointConfiguration::toRobotState() const
 {
   if (!robot_model_)
   {
     throw JointConfigurationException("No robot model set");
   }
 
-  robot_state::RobotState robot_state(robot_model_);
+  moveit::core::RobotState robot_state(robot_model_);
   robot_state.setToDefaultValues();
   robot_state.setJointGroupPositions(group_name_, joints_);
   return robot_state;
@@ -119,7 +119,7 @@ robot_state::RobotState JointConfiguration::toRobotState() const
 
 moveit_msgs::msg::RobotState JointConfiguration::toMoveitMsgsRobotStateWithModel() const
 {
-  robot_state::RobotState start_state(toRobotState());
+  moveit::core::RobotState start_state(toRobotState());
   moveit_msgs::msg::RobotState rob_state_msg;
   moveit::core::robotStateToRobotStateMsg(start_state, rob_state_msg, false);
   return rob_state_msg;
