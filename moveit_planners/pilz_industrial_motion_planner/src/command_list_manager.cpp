@@ -60,12 +60,10 @@ CommandListManager::CommandListManager(const rclcpp::Node::SharedPtr& node,
   // Obtain the aggregated joint limits
   pilz_industrial_motion_planner::JointLimitsContainer aggregated_limit_active_joints;
 
-  // TODO(henning): pass PARAM_NAMESPACE_LIMITS
   aggregated_limit_active_joints = pilz_industrial_motion_planner::JointLimitsAggregator::getAggregatedLimits(
       node_, PARAM_NAMESPACE_LIMITS, model_->getActiveJointModels());
 
   // Obtain cartesian limits
-  // TODO(henning): pass PARAM_NAMESPACE_LIMITS
   pilz_industrial_motion_planner::CartesianLimit cartesian_limit =
       pilz_industrial_motion_planner::CartesianLimitsAggregator::getAggregatedLimits(node_, PARAM_NAMESPACE_LIMITS);
 
