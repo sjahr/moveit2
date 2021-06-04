@@ -178,7 +178,7 @@ def generate_launch_description():
     load_controllers = []
     for controller in [
         "joint_state_controller",
-        "panda_joint_group_position_controller",
+        "panda_arm_controller",
     ]:
         load_controllers += [
             ExecuteProcess(
