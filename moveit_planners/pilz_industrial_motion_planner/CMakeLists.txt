@@ -147,8 +147,6 @@ add_library(command_list_manager
   src/plan_components_builder.cpp
 )
 ament_target_dependencies(command_list_manager ${THIS_PACKAGE_INCLUDE_DEPENDS})
-# TODO(henning): Remove?
-# add_dependencies(command_list_manager ${catkin_EXPORTED_TARGETS})
 
 add_library(sequence_capability
   src/move_group_sequence_action.cpp
@@ -163,8 +161,6 @@ add_library(sequence_capability
   src/cartesian_limits_aggregator.cpp
 )
 ament_target_dependencies(sequence_capability ${THIS_PACKAGE_INCLUDE_DEPENDS})
-# TODO(henning): Remove?
-# add_dependencies(sequence_capability ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##
