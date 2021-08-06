@@ -46,7 +46,6 @@ namespace
 static const rclcpp::Logger LOGGER =
     rclcpp::get_logger("moveit.pilz_industrial_motion_planner.planning_context_loader_circ");
 }
-}
 
 pilz_industrial_motion_planner::PlanningContextLoaderCIRC::PlanningContextLoaderCIRC()
 {

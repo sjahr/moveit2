@@ -42,6 +42,7 @@
 #include "pilz_industrial_motion_planner/command_list_manager.h"
 #include "pilz_industrial_motion_planner/trajectory_generation_exceptions.h"
 
+#include <moveit/moveit_cpp/moveit_cpp.h>
 namespace pilz_industrial_motion_planner
 {
 static const rclcpp::Logger LOGGER =
@@ -57,9 +58,9 @@ MoveGroupSequenceService::~MoveGroupSequenceService()
 void MoveGroupSequenceService::initialize()
 {
   command_list_manager_.reset(new pilz_industrial_motion_planner::CommandListManager(
-      context_->node_, context_->planning_scene_monitor_->getRobotModel()));
+      context_->moveit_cpp_->getNode(), context_->planning_scene_monitor_->getRobotModel()));
 
-  sequence_service_ = context_->node_->create_service<moveit_msgs::srv::GetMotionSequence>(
+  sequence_service_ = context_->moveit_cpp_->getNode()->create_service<moveit_msgs::srv::GetMotionSequence>(
       SEQUENCE_SERVICE_NAME,
       std::bind(&MoveGroupSequenceService::plan, this, std::placeholders::_1, std::placeholders::_2));
 }
@@ -71,7 +72,7 @@ bool MoveGroupSequenceService::plan(const moveit_msgs::srv::GetMotionSequence::R
   // used for planning?
   planning_scene_monitor::LockedPlanningSceneRO ps(context_->planning_scene_monitor_);
 
-  rclcpp::Time planning_start = context_->node_->now();
+  rclcpp::Time planning_start = context_->moveit_cpp_->getNode()->now();
   RobotTrajCont traj_vec;
   try
   {
@@ -99,7 +100,7 @@ bool MoveGroupSequenceService::plan(const moveit_msgs::srv::GetMotionSequence::R
                                                   res->response.planned_trajectories.at(i));
   }
   res->response.error_code.val = moveit_msgs::msg::MoveItErrorCodes::SUCCESS;
-  res->response.planning_time = (context_->node_->now() - planning_start).seconds();
+  res->response.planning_time = (context_->moveit_cpp_->getNode()->now() - planning_start).seconds();
   return true;
 }
 

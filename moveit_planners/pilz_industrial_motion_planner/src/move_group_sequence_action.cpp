@@ -47,6 +47,7 @@
 #include <moveit/robot_state/conversions.h>
 #include <moveit/trajectory_processing/trajectory_tools.h>
 #include <moveit/utils/message_checks.h>
+#include <moveit/moveit_cpp/moveit_cpp.h>
 
 #include "pilz_industrial_motion_planner/command_list_manager.h"
 #include "pilz_industrial_motion_planner/trajectory_generation_exceptions.h"
@@ -64,7 +65,7 @@ void MoveGroupSequenceAction::initialize()
   // start the move action server
   RCLCPP_INFO_STREAM(LOGGER, "initialize move group sequence action");
   move_action_server_ = rclcpp_action::create_server<moveit_msgs::action::MoveGroupSequence>(
-      context_->node_, "sequence_move_group",
+      context_->moveit_cpp_->getNode(), "sequence_move_group",
       [](const rclcpp_action::GoalUUID& /* unused */,
          std::shared_ptr<const moveit_msgs::action::MoveGroupSequence::Goal> /* unused */) {
         RCLCPP_DEBUG(LOGGER, "Received action goal");
@@ -85,7 +86,7 @@ void MoveGroupSequenceAction::initialize()
       });
 
   command_list_manager_ = std::make_unique<pilz_industrial_motion_planner::CommandListManager>(
-      context_->node_, context_->planning_scene_monitor_->getRobotModel());
+      context_->moveit_cpp_->getNode(), context_->planning_scene_monitor_->getRobotModel());
 }
 
 void MoveGroupSequenceAction::executeSequenceCallback(
@@ -111,7 +112,7 @@ void MoveGroupSequenceAction::executeSequenceCallback(
 
   // before we start planning, ensure that we have the latest robot state
   // received...
-  context_->planning_scene_monitor_->waitForCurrentRobotState(context_->node_->now());
+  context_->planning_scene_monitor_->waitForCurrentRobotState(context_->moveit_cpp_->getNode()->now());
   context_->planning_scene_monitor_->updateFrameTransforms();
 
   const auto action_res = std::make_shared<moveit_msgs::action::MoveGroupSequence::Result>();
@@ -213,7 +214,7 @@ void MoveGroupSequenceAction::executeMoveCallbackPlanOnly(
           static_cast<const planning_scene::PlanningSceneConstPtr&>(lscene) :
           lscene->diff(goal->planning_options.planning_scene_diff);
 
-  rclcpp::Time planning_start = context_->node_->now();
+  rclcpp::Time planning_start = context_->moveit_cpp_->getNode()->now();
   RobotTrajCont traj_vec;
   try
   {
@@ -253,7 +254,7 @@ void MoveGroupSequenceAction::executeMoveCallbackPlanOnly(
   }
 
   action_res->response.error_code.val = moveit_msgs::msg::MoveItErrorCodes::SUCCESS;
-  action_res->response.planning_time = (context_->node_->now() - planning_start).seconds();
+  action_res->response.planning_time = (context_->moveit_cpp_->getNode()->now() - planning_start).seconds();
 }
 
 bool MoveGroupSequenceAction::planUsingSequenceManager(const moveit_msgs::msg::MotionSequenceRequest& req,
@@ -271,7 +272,7 @@ bool MoveGroupSequenceAction::planUsingSequenceManager(const moveit_msgs::msg::M
         resolvePlanningPipeline(req.items[0].req.pipeline_id);
     if (!planning_pipeline)
     {
-      ROS_ERROR_STREAM("Could not load planning pipeline " << req.items[0].req.pipeline_id);
+      RCLCPP_ERROR_STREAM(LOGGER, "Could not load planning pipeline " << req.items[0].req.pipeline_id);
       return false;
     }
 
