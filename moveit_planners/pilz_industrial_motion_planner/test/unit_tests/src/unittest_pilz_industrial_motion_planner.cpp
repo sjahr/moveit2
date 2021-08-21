@@ -42,8 +42,12 @@
 #include "pilz_industrial_motion_planner/pilz_industrial_motion_planner.h"
 #include "test_utils.h"
 
+#include "rclcpp/rclcpp.hpp"
+
 const std::string PARAM_MODEL_NO_GRIPPER_NAME{ "robot_description" };
 const std::string PARAM_MODEL_WITH_GRIPPER_NAME{ "robot_description_pg70" };
+
+static const rclcpp::Logger LOGGER = rclcpp::get_logger("unittest_pilz_industrial_motion_planner");
 
 class CommandPlannerTest : public testing::TestWithParam<std::string>
 {
@@ -64,11 +68,16 @@ protected:
    */
   void createPlannerInstance()
   {
+    std::cout << "Tres";
     // Load planner name from parameter server
-    if (!ph_.getParam("planning_plugin", planner_plugin_name_))
+    if (!node_->has_parameter("planning_plugin"))
     {
-      ROS_FATAL_STREAM("Could not find planner plugin name");
+      RCLCPP_FATAL_STREAM(LOGGER, "Could not find planner plugin name");
       FAIL();
+    }
+    else {
+      node_->get_parameter<std::string>("planning_plugin", planner_plugin_name_);
+      std::cout << "Found: " << planner_plugin_name_.c_str();
     }
 
     // Load the plugin
@@ -79,21 +88,23 @@ protected:
     }
     catch (pluginlib::PluginlibException& ex)
     {
-      ROS_FATAL_STREAM("Exception while creating planning plugin loader " << ex.what());
+      RCLCPP_FATAL_STREAM(LOGGER, "Exception while creating planning plugin loader " << ex.what());
       FAIL();
     }
+    std::cout << "Loaded planning plugin";
 
     // Create planner
     try
     {
       planner_instance_.reset(planner_plugin_loader_->createUnmanagedInstance(planner_plugin_name_));
-      ASSERT_TRUE(planner_instance_->initialize(robot_model_, ph_.getNamespace()))
+      ASSERT_TRUE(planner_instance_->initialize(robot_model_, node_, "robot_description_planning")) // TODO(sjahr) Namespace correct?
           << "Initialzing the planner instance failed.";
     }
     catch (pluginlib::PluginlibException& ex)
     {
       FAIL() << "Could not create planner " << ex.what() << "\n";
     }
+    std::cout << "Created planner";
   }
 
   void TearDown() override
@@ -103,8 +114,8 @@ protected:
 
 protected:
   // ros stuff
-  ros::NodeHandle ph_{ "~" };
-  robot_model::RobotModelConstPtr robot_model_{ robot_model_loader::RobotModelLoader(GetParam()).getModel() };
+  rclcpp::Node::SharedPtr node_;
+  moveit::core::RobotModelConstPtr robot_model_{robot_model_loader::RobotModelLoader(node_, GetParam()).getModel() };
 
   std::string planner_plugin_name_;
 
@@ -123,15 +134,18 @@ INSTANTIATE_TEST_SUITE_P(InstantiationName, CommandPlannerTest,
  */
 TEST_P(CommandPlannerTest, ObtainLoadedPlanningAlgorithms)
 {
+  std::cout << "Quatre?";
   // Check for the algorithms
   std::vector<std::string> algs;
 
+  std::cout << "Check for the algorithms";
   planner_instance_->getPlanningAlgorithms(algs);
   ASSERT_EQ(3u, algs.size()) << "Found more or less planning algorithms as expected! Found:"
                              << ::testing::PrintToString(algs);
 
   // Collect the algorithms, check for uniqueness
   std::set<std::string> algs_set;
+  std::cout << "Check for the algorithms";
   for (const auto& alg : algs)
   {
     algs_set.insert(alg);
@@ -226,7 +240,11 @@ TEST_P(CommandPlannerTest, CheckPlanningContextDescriptionNotEmptyAndStable)
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "unittest_pilz_industrial_motion_planner");
+  std::cout << "Hello there\n";
   testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  rclcpp::init(argc, argv);
+  std::cout << "Uno\n";
+  int result = RUN_ALL_TESTS();
+    std::cout << "D\n";
+  return result;
 }
