@@ -1008,7 +1008,7 @@ void testutils::createFakeCartTraj(const robot_trajectory::RobotTrajectoryPtr& t
   for (size_t i = 0; i < traj->getWayPointCount(); ++i)
   {
     trajectory_msgs::msg::JointTrajectoryPoint waypoint;
-    waypoint.time_from_start = rclcpp::Duration(traj->getWayPointDurationFromStart(i));
+    waypoint.time_from_start = rclcpp::Duration::from_nanoseconds(traj->getWayPointDurationFromStart(i));
     Eigen::Isometry3d waypoint_pose = traj->getWayPointPtr(i)->getFrameTransform(link_name);
     Eigen::Vector3d waypoint_position = waypoint_pose.translation();
     waypoint.positions.push_back(waypoint_position(0));
