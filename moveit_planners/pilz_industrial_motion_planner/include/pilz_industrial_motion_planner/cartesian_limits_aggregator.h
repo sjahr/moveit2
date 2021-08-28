@@ -40,13 +40,13 @@
 namespace pilz_industrial_motion_planner
 {
 /**
- * @brief Obtains cartesian limits from the parameter server
+ * @brief Obtains cartesian limits from the node parameters
  */
 class CartesianLimitsAggregator
 {
 public:
   /**
-   * @brief Loads cartesian limits from the parameter server
+   * @brief Loads cartesian limits from the node parameters
    *
    * The parameters are expected to be under "~/cartesian_limits" of the given
    * node handle.

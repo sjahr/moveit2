@@ -60,7 +60,7 @@ pilz_industrial_motion_planner::JointLimitsAggregator::getAggregatedLimits(
   {
     JointLimit joint_limit;
 
-    // If there is something defined for the joint on the parameter server
+    // If there is something defined for the joint in the node parameters
     if (joint_limits_interface::getJointLimits(joint_model->getName(), node, joint_limit))
     {
       if (joint_limit.has_position_limits)
@@ -83,7 +83,7 @@ pilz_industrial_motion_planner::JointLimitsAggregator::getAggregatedLimits(
     }
     else
     {
-      // If there is nothing defined for this joint on the parameter server just
+      // If there is nothing defined for this joint in the node parameters just
       // update the values by the values of
       // the urdf
 
