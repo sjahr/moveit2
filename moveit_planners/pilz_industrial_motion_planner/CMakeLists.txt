@@ -80,9 +80,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   Boost
 )
 
-
 ## Declare a C++ library
-add_library(${PROJECT_NAME}_lib SHARED
+add_library(${PROJECT_NAME}_lib
   src/${PROJECT_NAME}.cpp
   src/planning_context_loader.cpp
   src/joint_limits_validator.cpp
@@ -100,7 +99,7 @@ ament_target_dependencies(${PROJECT_NAME}_lib ${THIS_PACKAGE_INCLUDE_DEPENDS})
 #############
 ## Plugins ##
 #############
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   src/${PROJECT_NAME}.cpp
   src/planning_context_loader.cpp
   src/joint_limits_aggregator.cpp
@@ -111,7 +110,7 @@ add_library(${PROJECT_NAME}
 )
 ament_target_dependencies(${PROJECT_NAME} ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
-add_library(planning_context_loader_ptp
+add_library(planning_context_loader_ptp SHARED
   src/planning_context_loader_ptp.cpp
   src/planning_context_loader.cpp
   src/trajectory_functions.cpp
@@ -119,26 +118,34 @@ add_library(planning_context_loader_ptp
   src/trajectory_generator_ptp.cpp
   src/velocity_profile_atrap.cpp
   src/joint_limits_container.cpp
+  src/limits_container.cpp
+  src/cartesian_limit.cpp
 )
 ament_target_dependencies(planning_context_loader_ptp ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
-add_library(planning_context_loader_lin
+add_library(planning_context_loader_lin SHARED
   src/planning_context_loader_lin.cpp
   src/planning_context_loader.cpp
   src/trajectory_functions.cpp
   src/trajectory_generator.cpp
   src/trajectory_generator_lin.cpp
   src/velocity_profile_atrap.cpp
+  src/joint_limits_container.cpp
+  src/limits_container.cpp
+  src/cartesian_limit.cpp
 )
 ament_target_dependencies(planning_context_loader_lin ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
-add_library(planning_context_loader_circ
+add_library(planning_context_loader_circ SHARED
   src/planning_context_loader_circ.cpp
   src/planning_context_loader.cpp
   src/trajectory_functions.cpp
   src/trajectory_generator.cpp
   src/trajectory_generator_circ.cpp
   src/path_circle_generator.cpp
+  src/joint_limits_container.cpp
+  src/limits_container.cpp
+  src/cartesian_limit.cpp
 )
 ament_target_dependencies(planning_context_loader_circ ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
@@ -148,7 +155,7 @@ add_library(command_list_manager
 )
 ament_target_dependencies(command_list_manager ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
-add_library(sequence_capability
+add_library(sequence_capability SHARED
   src/move_group_sequence_action.cpp
   src/move_group_sequence_service.cpp
   src/plan_components_builder.cpp
@@ -165,12 +172,9 @@ ament_target_dependencies(sequence_capability ${THIS_PACKAGE_INCLUDE_DEPENDS})
 #############
 ## Install ##
 #############
-install(FILES
-  plugins/sequence_capability_plugin_description.xml
-  plugins/${PROJECT_NAME}_plugin_description.xml
-  plugins/planning_context_plugin_description.xml
-  DESTINATION share/${PROJECT_NAME}
-)
+pluginlib_export_plugin_description_file(moveit_core plugins/pilz_industrial_motion_planner_plugin_description.xml)
+pluginlib_export_plugin_description_file(pilz_industrial_motion_planner plugins/sequence_capability_plugin_description.xml)
+pluginlib_export_plugin_description_file(pilz_industrial_motion_planner plugins/planning_context_plugin_description.xml)
 
 ## Mark libraries for installation
 install(
@@ -189,7 +193,23 @@ install(
   INCLUDES DESTINATION include
 )
 
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  ${PROJECT_NAME}_lib
+  ${PROJECT_NAME}
+  planning_context_loader_ptp
+  planning_context_loader_lin
+  planning_context_loader_circ
+  sequence_capability
+)
+ament_export_targets(export_${PROJECT_NAME})
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 
 if(BUILD_TESTING)
