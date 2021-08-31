@@ -88,7 +88,7 @@ inline std::string getJointName(size_t joint_number, const std::string& joint_pr
 
 /**
  * @brief Create limits for tests to avoid the need to get the limits from the
- * parameter server
+ * node parameter
  */
 pilz_industrial_motion_planner::JointLimitsContainer createFakeLimits(const std::vector<std::string>& joint_names);
 
@@ -403,7 +403,7 @@ struct BlendTestData
 };
 
 /**
- * @brief fetch test datasets from parameter server
+ * @brief fetch test datasets from node parameters
  * @param nh
  * @return
  */

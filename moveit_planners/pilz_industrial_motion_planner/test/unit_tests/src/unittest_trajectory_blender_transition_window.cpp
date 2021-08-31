@@ -66,7 +66,7 @@
 const std::string PARAM_MODEL_NO_GRIPPER_NAME{ "robot_description" };
 const std::string PARAM_MODEL_WITH_GRIPPER_NAME{ "robot_description_pg70" };
 
-// parameters from parameter server
+// parameters from node parameters
 const std::string PARAM_PLANNING_GROUP_NAME("planning_group");
 const std::string PARAM_TARGET_LINK_NAME("target_link");
 const std::string CARTESIAN_VELOCITY_TOLERANCE("cartesian_velocity_tolerance");

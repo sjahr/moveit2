@@ -9,11 +9,11 @@ set(UNIT_TEST_SOURCEFILES
   #unittest_trajectory_generator_lin
   #unittest_trajectory_generator_ptp
   unittest_pilz_industrial_motion_planner
-  #unittest_joint_limit
+  unittest_joint_limit
   #unittest_joint_limits_aggregator
   #unittest_joint_limits_container
   #unittest_joint_limits_validator
-  #unittest_cartesian_limits_aggregator
+  unittest_cartesian_limits_aggregator
   #unittest_planning_context_loaders
   #unittest_planning_context
   #unittest_get_solver_tip_frame
@@ -113,29 +113,27 @@ set(UNIT_TEST_SOURCEFILES
 #   )
 #
 # Command Planner Unit Test
-ament_add_gtest_executable(unittest_pilz_industrial_motion_planner src/unittest_pilz_industrial_motion_planner.cpp)
-target_link_libraries(unittest_pilz_industrial_motion_planner ${PROJECT_NAME}_testhelpers ${PROJECT_NAME}_lib)
-add_ros_test(launch/unittest_pilz_industrial_motion_planner.test.py ARGS "test_binary_dir:=${CMAKE_CURRENT_BINARY_DIR}")
-#   add_rostest_gtest(unittest_${PROJECT_NAME}
-#     test/unittest_${PROJECT_NAME}.test
-#     test/unittest_${PROJECT_NAME}.cpp
-#   )
-#   target_link_libraries(unittest_${PROJECT_NAME}
-#     ${catkin_LIBRARIES}
-#     ${PROJECT_NAME}_lib
-#   )
+  ament_add_gtest_executable(unittest_pilz_industrial_motion_planner src/unittest_pilz_industrial_motion_planner.cpp)
+  target_link_libraries(unittest_pilz_industrial_motion_planner ${PROJECT_NAME}_lib)
+  add_ros_test(launch/unittest_pilz_industrial_motion_planner.test.py ARGS "test_binary_dir:=${CMAKE_CURRENT_BINARY_DIR}")
 #
 #   # JointLimits Unit Test
 #   add_rostest_gtest(unittest_joint_limit
 #     test/unittest_joint_limit.test
 #     test/unittest_joint_limit.cpp
+ament_add_gtest_executable(unittest_joint_limit src/unittest_joint_limit.cpp)
+target_link_libraries(unittest_joint_limit ${PROJECT_NAME}_lib)
+add_ros_test(launch/unittest_joint_limit.test.py ARGS "test_binary_dir:=${CMAKE_CURRENT_BINARY_DIR}")
 #   )
 #   target_link_libraries(unittest_joint_limit
 #     ${catkin_LIBRARIES}
 #     ${PROJECT_NAME}_lib
 #   )
 #
-#   # JointLimitsAggregator Unit Test
+# JointLimitsAggregator Unit Test
+#  ament_add_gtest_executable(unittest_joint_limits_aggregator src/unittest_joint_limits_aggregator.cpp)
+#  target_link_libraries(unittest_joint_limits_aggregator ${PROJECT_NAME}_testhelpers ${PROJECT_NAME}_lib)
+#  add_ros_test(launch/unittest_joint_limits_aggregator.test.py ARGS "test_binary_dir:=${CMAKE_CURRENT_BINARY_DIR}")
 #   add_rostest_gtest(unittest_joint_limits_aggregator
 #     test/unittest_joint_limits_aggregator.test
 #     test/unittest_joint_limits_aggregator.cpp
@@ -163,7 +161,10 @@ add_ros_test(launch/unittest_pilz_industrial_motion_planner.test.py ARGS "test_b
 #     ${PROJECT_NAME}_lib
 #   )
 #
-#   # Cartesian Limits Aggregator Unit Test
+# Cartesian Limits Aggregator Unit Test
+  ament_add_gtest_executable(unittest_cartesian_limits_aggregator src/unittest_cartesian_limits_aggregator.cpp)
+  target_link_libraries(unittest_cartesian_limits_aggregator ${PROJECT_NAME}_lib)
+  add_ros_test(launch/unittest_cartesian_limits_aggregator.test.py ARGS "test_binary_dir:=${CMAKE_CURRENT_BINARY_DIR}")
 #   add_rostest_gtest(unittest_cartesian_limits_aggregator
 #     test/unittest_cartesian_limits_aggregator.test
 #     test/unittest_cartesian_limits_aggregator.cpp

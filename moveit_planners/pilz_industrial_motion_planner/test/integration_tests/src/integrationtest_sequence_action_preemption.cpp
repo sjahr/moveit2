@@ -67,7 +67,7 @@ static constexpr double WAIT_FOR_ACTION_SERVER_TIME_OUT{ 10. };  // seconds
 
 const std::string SEQUENCE_ACTION_NAME("/sequence_move_group");
 
-// Parameters from parameter server
+// Parameters from the node
 const std::string JOINT_POSITION_TOLERANCE("joint_position_tolerance");
 
 // events for callback tests

@@ -65,7 +65,7 @@
 const double EPSILON = 1.0e-6;
 const std::string PLAN_SERVICE_NAME = "/plan_kinematic_path";
 
-// Parameters from parameter server
+// Parameters from the node
 const std::string PARAM_PLANNING_GROUP_NAME("planning_group");
 const std::string POSE_TRANSFORM_MATRIX_NORM_TOLERANCE("pose_norm_tolerance");
 const std::string ORIENTATION_NORM_TOLERANCE("orientation_norm_tolerance");

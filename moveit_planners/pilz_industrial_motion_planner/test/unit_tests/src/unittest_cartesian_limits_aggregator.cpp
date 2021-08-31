@@ -34,7 +34,7 @@
 
 #include <gtest/gtest.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include "pilz_industrial_motion_planner/cartesian_limit.h"
 #include "pilz_industrial_motion_planner/cartesian_limits_aggregator.h"
@@ -44,6 +44,12 @@
  */
 class CartesianLimitsAggregator : public ::testing::Test
 {
+protected:
+  void SetUp() override
+  {
+    node_ = rclcpp::Node::make_shared("unittest_cartesian_limits_aggregator");
+  }
+  rclcpp::Node::SharedPtr node_;
 };
 
 /**
@@ -51,10 +57,8 @@ class CartesianLimitsAggregator : public ::testing::Test
  */
 TEST_F(CartesianLimitsAggregator, OnlyVelocity)
 {
-  ros::NodeHandle nh("~/vel_only");
-
   pilz_industrial_motion_planner::CartesianLimit limit =
-      pilz_industrial_motion_planner::CartesianLimitsAggregator::getAggregatedLimits(nh);
+      pilz_industrial_motion_planner::CartesianLimitsAggregator::getAggregatedLimits(node_, "only_vel");
   EXPECT_TRUE(limit.hasMaxTranslationalVelocity());
   EXPECT_EQ(limit.getMaxTranslationalVelocity(), 10);
   EXPECT_FALSE(limit.hasMaxTranslationalAcceleration());
@@ -67,10 +71,8 @@ TEST_F(CartesianLimitsAggregator, OnlyVelocity)
  */
 TEST_F(CartesianLimitsAggregator, AllValues)
 {
-  ros::NodeHandle nh("~/all");
-
   pilz_industrial_motion_planner::CartesianLimit limit =
-      pilz_industrial_motion_planner::CartesianLimitsAggregator::getAggregatedLimits(nh);
+      pilz_industrial_motion_planner::CartesianLimitsAggregator::getAggregatedLimits(node_, "all_values");
   EXPECT_TRUE(limit.hasMaxTranslationalVelocity());
   EXPECT_EQ(limit.getMaxTranslationalVelocity(), 1);
 
@@ -86,7 +88,7 @@ TEST_F(CartesianLimitsAggregator, AllValues)
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "unittest_cartesian_limits_aggregator");
+  rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

@@ -82,7 +82,7 @@ TEST_F(JointLimitsAggregator, ExpectedMapSize)
 }
 
 /**
- * @brief Check that the value in the parameter server correctly overrides the
+ * @brief Check that the value in the node parameters correctly overrides the
  * position(if within limits)
  */
 TEST_F(JointLimitsAggregator, CorrectOverwriteByParamterPosition)
@@ -113,7 +113,7 @@ TEST_F(JointLimitsAggregator, CorrectOverwriteByParamterPosition)
 }
 
 /**
- * @brief Check that the value in the parameter server correctly overrides the
+ * @brief Check that the value in the node parameter correctly overrides the
  * velocity(if within limits)
  */
 TEST_F(JointLimitsAggregator, CorrectOverwriteByParamterVelocity)

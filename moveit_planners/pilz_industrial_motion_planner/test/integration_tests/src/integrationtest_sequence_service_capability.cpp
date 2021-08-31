@@ -56,7 +56,7 @@
 #include "moveit_msgs/MotionSequenceRequest.h"
 #include "pilz_industrial_motion_planner/capability_names.h"
 
-// Parameters from parameter server
+// Parameters from the node
 const std::string TEST_DATA_FILE_NAME("testdata_file_name");
 
 using namespace pilz_industrial_motion_planner_testutils;

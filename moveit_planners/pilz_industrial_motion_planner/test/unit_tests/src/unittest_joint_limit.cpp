@@ -32,11 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-#include "ros/ros.h"
+#include <rclcpp/rclcpp.hpp>
 
 #include <gtest/gtest.h>
-
-#include <moveit_msgs/MoveItErrorCodes.h>
 
 #include "pilz_industrial_motion_planner/joint_limits_extension.h"
 #include "pilz_industrial_motion_planner/joint_limits_interface_extension.h"
@@ -48,31 +46,37 @@ namespace pilz_extensions_tests
 {
 class JointLimitTest : public ::testing::Test
 {
+protected:
+  void SetUp() override
+  {
+    node_ = rclcpp::Node::make_shared("unittest_joint_limits_extended");
+  }
+  rclcpp::Node::SharedPtr node_;
 };
 
 TEST_F(JointLimitTest, SimpleRead)
 {
-  ros::NodeHandle node_handle("~");
-
   // Joints limits interface
   JointLimits joint_limits_extended;
-  JointLimits joint_limits;
 
-  getJointLimits("joint_1", node_handle, joint_limits_extended);
+  // TODO(sjahr): This might change once the fully ros2_control's joint limit interface is used again!
+  EXPECT_TRUE(::joint_limits_interface::declare_parameters("joint_1", node_));
+  EXPECT_TRUE(getJointLimits("joint_1", node_, joint_limits_extended));
 
+  EXPECT_EQ(1, joint_limits_extended.max_acceleration);
+  EXPECT_EQ(-1, joint_limits_extended.max_deceleration);
+  EXPECT_EQ(1, joint_limits_extended.max_acceleration);
+  EXPECT_EQ(-1, joint_limits_extended.max_deceleration);
   EXPECT_EQ(1, joint_limits_extended.max_acceleration);
   EXPECT_EQ(-1, joint_limits_extended.max_deceleration);
 }
 
 TEST_F(JointLimitTest, readNonExistingJointLimit)
 {
-  ros::NodeHandle node_handle("~");
-
   // Joints limits interface
   JointLimits joint_limits_extended;
-  JointLimits joint_limits;
 
-  EXPECT_FALSE(getJointLimits("anything", node_handle, joint_limits_extended));
+  EXPECT_FALSE(getJointLimits("anything", node_, joint_limits_extended));
 }
 
 /**
@@ -82,22 +86,20 @@ TEST_F(JointLimitTest, readNonExistingJointLimit)
  */
 TEST_F(JointLimitTest, readInvalidParameterName)
 {
-  ros::NodeHandle node_handle("~");
-
   // Joints limits interface
   JointLimits joint_limits_extended;
-  JointLimits joint_limits;
 
-  EXPECT_FALSE(getJointLimits("~anything", node_handle, joint_limits_extended));
+  EXPECT_FALSE(getJointLimits("~anything", node_, joint_limits_extended));
 }
 
 TEST_F(JointLimitTest, OldRead)
 {
-  ros::NodeHandle node_handle("~");
-
   // Joints limits interface
   JointLimits joint_limits;
-  getJointLimits("joint_1", node_handle, joint_limits);
+
+  // TODO(sjahr): This might change once the fully ros2_control's joint limit interface is used again!
+  EXPECT_TRUE(::joint_limits_interface::declare_parameters("joint_1", node_));
+  EXPECT_TRUE(getJointLimits("joint_1", node_, joint_limits));
 
   EXPECT_EQ(1, joint_limits.max_acceleration);
 }
@@ -105,7 +107,7 @@ TEST_F(JointLimitTest, OldRead)
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "unittest_joint_limits_extended");
+  rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
