@@ -55,7 +55,7 @@ bool declareAndGetParam(double& output_value, const std::string& param_name, con
     {
       node->declare_parameter<double>(param_name, std::numeric_limits<double>::quiet_NaN());
     }
-    output_value = node->get_parameter<double>(param_name, output_value);
+    node->get_parameter<double>(param_name, output_value);
     if (std::isnan(output_value))
     {
       RCLCPP_ERROR(node->get_logger(), "Parameter \'%s\', is not set in the config file.", param_name);

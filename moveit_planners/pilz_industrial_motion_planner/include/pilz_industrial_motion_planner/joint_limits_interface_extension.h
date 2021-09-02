@@ -36,11 +36,46 @@
 #define JOINT_LIMITS_INTERFACE_EXTENSION_H
 
 #include "pilz_industrial_motion_planner/joint_limits_extension.h"
+#include <limits>
 
 // TODO(henning): Re-include when this is available, until then the headers content is copied below
-// #include <joint_limits_interface/joint_limits_rosparam.hpp>
+// TODO(sjahr): Current implementation does not offer the desired API (08/2021). Use draft from dstogl instead
+// (https://github.com/ros-controls/ros2_control/pull/462/files) #include <joint_limits_interface/joint_limits_rosparam.hpp>
 //////////////////////////////////////////////////////////////
 // start of <joint_limits_interface/joint_limits_rosparam.hpp>
+namespace joint_limits_interface
+{
+inline bool declare_parameters(const std::string& joint_name, const rclcpp::Node::SharedPtr& node)
+{
+  const std::string param_base_name = "joint_limits." + joint_name;
+  try
+  {
+    node->declare_parameter<bool>(param_base_name + ".has_position_limits", false);
+    node->declare_parameter<double>(param_base_name + ".min_position", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<double>(param_base_name + ".max_position", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<bool>(param_base_name + ".has_velocity_limits", false);
+    node->declare_parameter<double>(param_base_name + ".min_velocity", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<double>(param_base_name + ".max_velocity", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<bool>(param_base_name + ".has_acceleration_limits", false);
+    node->declare_parameter<double>(param_base_name + ".max_acceleration", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<bool>(param_base_name + ".has_jerk_limits", false);
+    node->declare_parameter<double>(param_base_name + ".max_jerk", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<bool>(param_base_name + ".has_effort_limits", false);
+    node->declare_parameter<double>(param_base_name + ".max_effort", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<bool>(param_base_name + ".angle_wraparound", false);
+    node->declare_parameter<bool>(param_base_name + ".has_soft_limits", false);
+    node->declare_parameter<double>(param_base_name + ".k_position", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<double>(param_base_name + ".k_velocity", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<double>(param_base_name + ".soft_lower_limit", std::numeric_limits<double>::quiet_NaN());
+    node->declare_parameter<double>(param_base_name + ".soft_upper_limit", std::numeric_limits<double>::quiet_NaN());
+  }
+  catch (const std::exception& ex)
+  {
+    RCLCPP_ERROR(node->get_logger(), "%s", ex.what());
+    return false;
+  }
+  return true;
+}
 //////////////////////////////////////////////////////////////
 /// Populate a JointLimits instance from the ROS2 node parameters.
 /**
@@ -76,8 +111,6 @@
  * \return True if a limits specification is found (ie. the \p joint_limits/joint_name parameter exists in \p node),
  * false otherwise.
  */
-namespace joint_limits_interface
-{
 inline bool getJointLimits(const std::string& joint_name, const rclcpp::Node::SharedPtr& node, JointLimits& limits)
 {
   const std::string param_base_name = "joint_limits." + joint_name;

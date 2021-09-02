@@ -61,7 +61,8 @@ pilz_industrial_motion_planner::JointLimitsAggregator::getAggregatedLimits(
     JointLimit joint_limit;
 
     // If there is something defined for the joint in the node parameters
-    if (joint_limits_interface::getJointLimits(joint_model->getName(), node, joint_limit))
+    if (::joint_limits_interface::declare_parameters(joint_model->getName(), node) &&
+        joint_limits_interface::getJointLimits(joint_model->getName(), node, joint_limit))
     {
       if (joint_limit.has_position_limits)
       {
