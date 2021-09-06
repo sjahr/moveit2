@@ -66,5 +66,5 @@ class TestTerminatingProcessStops(unittest.TestCase):
 
 @launch_testing.post_shutdown_test()
 class TestOutcome(unittest.TestCase):
-    def test_exit_codes(self, proc_info):
-        launch_testing.asserts.assertExitCodes(proc_info)
+    def test_exit_codes(self, proc_info, unittest_joint_limit):
+        launch_testing.asserts.assertExitCodes(proc_info, process=unittest_joint_limit)
