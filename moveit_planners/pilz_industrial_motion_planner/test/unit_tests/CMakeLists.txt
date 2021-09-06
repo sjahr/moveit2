@@ -11,26 +11,27 @@ set(UNIT_TEST_SOURCEFILES
   #unittest_pilz_industrial_motion_planner
   unittest_joint_limit
   #unittest_joint_limits_aggregator
-  #unittest_joint_limits_container
-  #unittest_joint_limits_validator
+  unittest_joint_limits_container
+  unittest_joint_limits_validator
   unittest_cartesian_limits_aggregator
   #unittest_planning_context_loaders
   #unittest_planning_context
   unittest_get_solver_tip_frame
 )
 
-## Add pure gtest based unittests and launch them with ros_test
+# Direct Command Planner Unit Test
 ament_add_gtest_executable(unittest_pilz_industrial_motion_planner_direct
   src/unittest_pilz_industrial_motion_planner.cpp
   ${CMAKE_SOURCE_DIR}/src/planning_context_loader_ptp.cpp)
 target_link_libraries(unittest_pilz_industrial_motion_planner_direct ${PROJECT_NAME}_lib ${PROJECT_NAME}_testhelpers)
 
+# Asymmetric Trapezoidal Velocity Profile Unit Test
 ament_add_gtest_executable(unittest_velocity_profile_atrap
   src/unittest_velocity_profile_atrap.cpp
   ${CMAKE_SOURCE_DIR}/src/velocity_profile_atrap.cpp)
-ament_target_dependencies(unittest_velocity_profile_atrap rclcpp)
 target_link_libraries(unittest_velocity_profile_atrap ${PROJECT_NAME}_lib)
 
+# Trajectory Generator Unit Test
 ament_add_gtest_executable(unittest_trajectory_generator
   src/unittest_trajectory_generator.cpp
   ${CMAKE_SOURCE_DIR}/src/trajectory_generator.cpp)
@@ -123,25 +124,17 @@ add_ros_test(launch/unittest_joint_limit.test.py ARGS "test_binary_dir:=${CMAKE_
 #     ${catkin_LIBRARIES}
 #     ${PROJECT_NAME}_lib
 #   )
-#
-#   # JointLimitsContainer Unit Test
-#   catkin_add_gtest(unittest_joint_limits_container
-#     test/unittest_joint_limits_container.cpp
-#   )
-#   target_link_libraries(unittest_joint_limits_container
-#     ${catkin_LIBRARIES}
-#     ${PROJECT_NAME}_lib
-#   )
-#
-#   # JointLimitsValidator Unit Test
-#   catkin_add_gtest(unittest_joint_limits_validator
-#     test/unittest_joint_limits_validator.cpp
-#   )
-#   target_link_libraries(unittest_joint_limits_validator
-#     ${catkin_LIBRARIES}
-#     ${PROJECT_NAME}_lib
-#   )
-#
+
+# JointLimitsContainer Unit Test
+ament_add_gtest_executable(unittest_joint_limits_container
+  src/unittest_joint_limits_container.cpp)
+target_link_libraries(unittest_joint_limits_container ${PROJECT_NAME}_lib)
+
+# JointLimitsValidator Unit Test
+ament_add_gtest_executable(unittest_joint_limits_validator
+  src/unittest_joint_limits_validator.cpp)
+target_link_libraries(unittest_joint_limits_validator ${PROJECT_NAME}_lib)
+
 # Cartesian Limits Aggregator Unit Test
 ament_add_gtest_executable(unittest_cartesian_limits_aggregator src/unittest_cartesian_limits_aggregator.cpp)
 target_link_libraries(unittest_cartesian_limits_aggregator ${PROJECT_NAME}_lib)
@@ -170,7 +163,7 @@ add_ros_test(launch/unittest_cartesian_limits_aggregator.test.py ARGS "test_bina
 #     ${PROJECT_NAME}_testhelpers
 #   )
 #
-## GetTipFrames Unit Test
+# GetTipFrames Unit Test
 ament_add_gmock(unittest_get_solver_tip_frame src/unittest_get_solver_tip_frame.cpp)
 target_link_libraries(unittest_get_solver_tip_frame ${PROJECT_NAME}_lib)
 
