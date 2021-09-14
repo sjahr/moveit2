@@ -20,22 +20,21 @@ set(UNIT_TEST_SOURCEFILES
 )
 
 # Direct Command Planner Unit Test
-ament_add_gtest_executable(unittest_pilz_industrial_motion_planner_direct
+ament_add_gtest(unittest_pilz_industrial_motion_planner_direct
   src/unittest_pilz_industrial_motion_planner.cpp
   ${CMAKE_SOURCE_DIR}/src/planning_context_loader_ptp.cpp)
 target_link_libraries(unittest_pilz_industrial_motion_planner_direct ${PROJECT_NAME}_lib ${PROJECT_NAME}_testhelpers)
 
 # Asymmetric Trapezoidal Velocity Profile Unit Test
-ament_add_gtest_executable(unittest_velocity_profile_atrap
+ament_add_gtest(unittest_velocity_profile_atrap
   src/unittest_velocity_profile_atrap.cpp
   ${CMAKE_SOURCE_DIR}/src/velocity_profile_atrap.cpp)
 target_link_libraries(unittest_velocity_profile_atrap ${PROJECT_NAME}_lib)
 
 # Trajectory Generator Unit Test
-ament_add_gtest_executable(unittest_trajectory_generator
+ament_add_gtest(unittest_trajectory_generator
   src/unittest_trajectory_generator.cpp
   ${CMAKE_SOURCE_DIR}/src/trajectory_generator.cpp)
-ament_target_dependencies(unittest_trajectory_generator rclcpp ${PROJECT_NAME}_testutils)
 target_link_libraries(unittest_trajectory_generator ${PROJECT_NAME}_lib)
 
 #   # Trajectory Functions Unit Test
@@ -126,12 +125,12 @@ add_ros_test(launch/unittest_joint_limit.test.py ARGS "test_binary_dir:=${CMAKE_
 #   )
 
 # JointLimitsContainer Unit Test
-ament_add_gtest_executable(unittest_joint_limits_container
+ament_add_gtest(unittest_joint_limits_container
   src/unittest_joint_limits_container.cpp)
 target_link_libraries(unittest_joint_limits_container ${PROJECT_NAME}_lib)
 
 # JointLimitsValidator Unit Test
-ament_add_gtest_executable(unittest_joint_limits_validator
+ament_add_gtest(unittest_joint_limits_validator
   src/unittest_joint_limits_validator.cpp)
 target_link_libraries(unittest_joint_limits_validator ${PROJECT_NAME}_lib)
 

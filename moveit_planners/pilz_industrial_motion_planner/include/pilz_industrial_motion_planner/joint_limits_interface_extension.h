@@ -319,7 +319,6 @@ inline bool getJointLimits(const std::string& joint_name, const rclcpp::Node::Sh
     return false;  // LCOV_EXCL_LINE // The case where getJointLimits returns
                    // false is covered above.
   }
-
   try
   {
     // Deceleration limits
@@ -328,7 +327,7 @@ inline bool getJointLimits(const std::string& joint_name, const rclcpp::Node::Sh
     if (limits.has_deceleration_limits)
     {
       limits.max_deceleration =
-          node->declare_parameter(limits_namespace + ".max_deceleration", limits.max_deceleration);
+          node->declare_parameter(limits_namespace + ".max_deceleration", std::numeric_limits<double>::quiet_NaN());
     }
   }
   catch (const std::exception& ex)

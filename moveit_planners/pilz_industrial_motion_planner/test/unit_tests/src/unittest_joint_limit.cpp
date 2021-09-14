@@ -65,10 +65,6 @@ TEST_F(JointLimitTest, SimpleRead)
 
   EXPECT_EQ(1, joint_limits_extended.max_acceleration);
   EXPECT_EQ(-1, joint_limits_extended.max_deceleration);
-  EXPECT_EQ(1, joint_limits_extended.max_acceleration);
-  EXPECT_EQ(-1, joint_limits_extended.max_deceleration);
-  EXPECT_EQ(1, joint_limits_extended.max_acceleration);
-  EXPECT_EQ(-1, joint_limits_extended.max_deceleration);
 }
 
 TEST_F(JointLimitTest, readNonExistingJointLimit)

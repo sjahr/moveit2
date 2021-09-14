@@ -202,7 +202,6 @@ TEST_F(JointLimitsAggregator, LimitsViolationVelocity)
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "unittest_joint_limits_aggregator");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
