@@ -101,6 +101,15 @@ bool MoveItPlanningPipeline::reset() noexcept
 moveit_msgs::msg::MotionPlanResponse MoveItPlanningPipeline::plan(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<moveit_msgs::action::GlobalPlanner>> global_goal_handle)
 {
+  moveit_msgs::msg::MotionPlanResponse response;
+
+  if ((global_goal_handle->get_goal())->motion_sequence.items.size() == 0)
+  {
+    RCLCPP_WARN(LOGGER, "Global planner received motion sequence request with no items. At least one is needed.");
+    response.error_code.val = moveit_msgs::msg::MoveItErrorCodes::PLANNING_FAILED;
+    return response;
+  }
+
   // Process goal
   if ((global_goal_handle->get_goal())->motion_sequence.items.size() > 1)
   {
@@ -130,7 +139,6 @@ moveit_msgs::msg::MotionPlanResponse MoveItPlanningPipeline::plan(
   auto plan_solution = planning_components->plan();
 
   // Transform solution into MotionPlanResponse and publish it
-  moveit_msgs::msg::MotionPlanResponse response;
   response.trajectory_start = plan_solution.start_state;
   response.group_name = motion_plan_req.group_name;
   plan_solution.trajectory->getRobotTrajectoryMsg(response.trajectory);
