@@ -70,9 +70,9 @@ public:
       const std::shared_ptr<rclcpp_action::ServerGoalHandle<moveit_msgs::action::GlobalPlanner>> global_goal_handle) = 0;
 
   /**
-   * Reset global planner plugin
+   * Reset global planner plugin. This should never fail.
    * @return True if reset was successful
    */
-  virtual bool reset() = 0;
+  virtual bool reset() noexcept = 0;
 };
 }  // namespace moveit_hybrid_planning
