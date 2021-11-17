@@ -102,13 +102,13 @@ moveit_msgs::msg::MotionPlanResponse MoveItPlanningPipeline::plan(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<moveit_msgs::action::GlobalPlanner>> global_goal_handle)
 {
   // Process goal
-  if ((global_goal_handle->get_goal())->desired_motion_sequence.items.size() > 1)
+  if ((global_goal_handle->get_goal())->motion_sequence.items.size() > 1)
   {
     RCLCPP_WARN(LOGGER, "Global planner received motion sequence request with more than one item but the "
                         "'moveit_planning_pipeline' plugin only accepts one item. Just using the first item as global "
                         "planning goal!");
   }
-  auto motion_plan_req = (global_goal_handle->get_goal())->desired_motion_sequence.items[0].req;
+  auto motion_plan_req = (global_goal_handle->get_goal())->motion_sequence.items[0].req;
 
   // Set parameters required by the planning component
   node_ptr_->set_parameter({ PLAN_REQUEST_PARAM_NS + "planner_id", motion_plan_req.planner_id });
