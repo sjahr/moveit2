@@ -56,8 +56,6 @@ class GlobalPlannerComponent : public rclcpp::Node
 public:
   GlobalPlannerComponent(const rclcpp::NodeOptions& options);
 
-  // TODO(sjahr) implement get_last_solution service
-
 private:
   rclcpp::TimerBase::SharedPtr timer_;
   bool initialized_;
@@ -83,7 +81,7 @@ private:
       std::shared_ptr<rclcpp_action::ServerGoalHandle<moveit_msgs::action::GlobalPlanner>> goal_handle);
 
   // Initialize planning scene monitor and load pipelines
-  bool init();
+  bool initializeGlobalPlanner();
 };
 
 }  // namespace moveit_hybrid_planning

@@ -92,7 +92,7 @@ bool MoveItPlanningPipeline::initialize(const rclcpp::Node::SharedPtr& node)
   return true;
 }
 
-bool MoveItPlanningPipeline::reset()
+bool MoveItPlanningPipeline::reset() noexcept
 {
   // Do Nothing
   return true;

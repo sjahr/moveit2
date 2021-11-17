@@ -65,7 +65,7 @@ GlobalPlannerComponent::GlobalPlannerComponent(const rclcpp::NodeOptions& option
     }
     else
     {
-      initialized_ = this->init();
+      initialized_ = this->initializeGlobalPlanner();
       if (!initialized_)
       {
         timer_->cancel();
@@ -75,7 +75,7 @@ GlobalPlannerComponent::GlobalPlannerComponent(const rclcpp::NodeOptions& option
   });
 }
 
-bool GlobalPlannerComponent::init()
+bool GlobalPlannerComponent::initializeGlobalPlanner()
 {
   auto node_ptr = shared_from_this();
 
@@ -152,10 +152,7 @@ void GlobalPlannerComponent::globalPlanningRequestCallback(
   last_global_solution_ = planning_solution;  // TODO(sjahr) Add Service to expose this
 
   // Reset the global planner
-  if (!global_planner_instance_->reset())
-  {
-    throw std::runtime_error("Failed to reset the global planner");
-  }
+  global_planner_instance_->reset();
 };
 }  // namespace moveit_hybrid_planning
 
