@@ -58,7 +58,7 @@ bool MoveItPlanningPipeline::initialize(const rclcpp::Node::SharedPtr& node)
                                                     std::vector<std::string>({ "ompl" }));
   node->declare_parameter<std::string>(PLANNING_PIPELINES_NS + "namespace", UNDEFINED);
 
-  // Declare PlanRequestParameters
+  // Default PlanRequestParameters. These can be overriden when plan() is called
   node->declare_parameter<std::string>(PLAN_REQUEST_PARAM_NS + "planner_id", UNDEFINED);
   node->declare_parameter<std::string>(PLAN_REQUEST_PARAM_NS + "planning_pipeline", UNDEFINED);
   node->declare_parameter<int>(PLAN_REQUEST_PARAM_NS + "planning_attempts", 5);
@@ -106,14 +106,13 @@ moveit_msgs::msg::MotionPlanResponse MoveItPlanningPipeline::plan(
   auto motion_plan_req = (global_goal_handle->get_goal())->motion_sequence.items[0].req;
 
   // Set parameters required by the planning component
-  node_ptr_->set_parameter({ PLAN_REQUEST_PARAM_NS + "planner_id", motion_plan_req.planner_id });
-  node_ptr_->set_parameter({ PLAN_REQUEST_PARAM_NS + "planning_pipeline", motion_plan_req.pipeline_id });
-  node_ptr_->set_parameter({ PLAN_REQUEST_PARAM_NS + "planning_attempts", motion_plan_req.num_planning_attempts });
-  node_ptr_->set_parameter({ PLAN_REQUEST_PARAM_NS + "planning_time", motion_plan_req.allowed_planning_time });
-  node_ptr_->set_parameter(
-      { PLAN_REQUEST_PARAM_NS + "max_velocity_scaling_factor", motion_plan_req.max_velocity_scaling_factor });
-  node_ptr_->set_parameter(
-      { PLAN_REQUEST_PARAM_NS + "max_acceleration_scaling_factor", motion_plan_req.max_acceleration_scaling_factor });
+  moveit_cpp::PlanningComponent::PlanRequestParameters plan_params;
+  plan_params.planner_id = motion_plan_req.planner_id;
+  plan_params.planning_pipeline = motion_plan_req.pipeline_id;
+  plan_params.planning_attempts = motion_plan_req.num_planning_attempts;
+  plan_params.planning_time = motion_plan_req.allowed_planning_time;
+  plan_params.max_velocity_scaling_factor = motion_plan_req.max_velocity_scaling_factor;
+  plan_params.max_acceleration_scaling_factor = motion_plan_req.max_acceleration_scaling_factor;
 
   // Create planning component
   auto planning_components = std::make_shared<moveit_cpp::PlanningComponent>(motion_plan_req.group_name, moveit_cpp_);
@@ -122,7 +121,7 @@ moveit_msgs::msg::MotionPlanResponse MoveItPlanningPipeline::plan(
   planning_components->setGoal(motion_plan_req.goal_constraints);
 
   // Plan motion
-  auto plan_solution = planning_components->plan();
+  auto plan_solution = planning_components->plan(plan_params);
 
   // Transform solution into MotionPlanResponse and publish it
   response.trajectory_start = plan_solution.start_state;
