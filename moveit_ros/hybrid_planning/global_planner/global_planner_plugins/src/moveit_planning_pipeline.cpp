@@ -53,21 +53,6 @@ const std::string UNDEFINED = "<undefined>";
 
 bool MoveItPlanningPipeline::initialize(const rclcpp::Node::SharedPtr& node)
 {
-  // Declare planning_scene_monitor parameter
-  node->declare_parameter<std::string>(PLANNING_SCENE_MONITOR_NS + "name", std::string("planning_scene_monitor"));
-  node->declare_parameter<std::string>(PLANNING_SCENE_MONITOR_NS + "robot_description",
-                                       std::string("robot_description"));
-  node->declare_parameter<std::string>(PLANNING_SCENE_MONITOR_NS + "joint_state_topic",
-                                       planning_scene_monitor::PlanningSceneMonitor::DEFAULT_JOINT_STATES_TOPIC);
-  node->declare_parameter<std::string>(
-      PLANNING_SCENE_MONITOR_NS + "attached_collision_object_topic",
-      planning_scene_monitor::PlanningSceneMonitor::DEFAULT_ATTACHED_COLLISION_OBJECT_TOPIC);
-  node->declare_parameter<std::string>(PLANNING_SCENE_MONITOR_NS + "monitored_planning_scene_topic",
-                                       planning_scene_monitor::PlanningSceneMonitor::MONITORED_PLANNING_SCENE_TOPIC);
-  node->declare_parameter<std::string>(PLANNING_SCENE_MONITOR_NS + "publish_planning_scene_topic",
-                                       planning_scene_monitor::PlanningSceneMonitor::DEFAULT_PLANNING_SCENE_TOPIC);
-  node->declare_parameter<double>(PLANNING_SCENE_MONITOR_NS + "wait_for_initial_state_timeout", 0.0);
-
   // Declare planning pipeline paramter
   node->declare_parameter<std::vector<std::string>>(PLANNING_PIPELINES_NS + "pipeline_names",
                                                     std::vector<std::string>({ "ompl" }));
@@ -87,7 +72,8 @@ bool MoveItPlanningPipeline::initialize(const rclcpp::Node::SharedPtr& node)
   node_ptr_ = node;
 
   // Initialize MoveItCpp API
-  moveit_cpp_ = std::make_shared<moveit_cpp::MoveItCpp>(node);
+  moveit_cpp::MoveItCpp::Options moveit_cpp_options(node);
+  moveit_cpp_ = std::make_shared<moveit_cpp::MoveItCpp>(node, moveit_cpp_options);
 
   return true;
 }
