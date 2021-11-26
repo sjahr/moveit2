@@ -41,8 +41,6 @@ const rclcpp::Logger LOGGER = rclcpp::get_logger("hybrid_planning_manager");
 
 namespace moveit::hybrid_planning
 {
-std::once_flag LOCAL_PLANNER_STARTED;
-
 bool SinglePlanExecution::initialize(const std::shared_ptr<HybridPlanningManager>& hybrid_planning_manager)
 {
   hybrid_planning_manager_ = hybrid_planning_manager;
@@ -59,18 +57,22 @@ ReactionResult SinglePlanExecution::react(const HybridPlanningEvent& event)
       {
         hybrid_planning_manager_->sendHybridPlanningResponse(false);
       }
+      // Reset local planner started flag
+      local_planner_started_ = false;
       return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
     case HybridPlanningEvent::GLOBAL_SOLUTION_AVAILABLE:
       // Do nothing since we wait for the global planning action to finish
       return ReactionResult(event, "Do nothing", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
     case HybridPlanningEvent::GLOBAL_PLANNING_ACTION_SUCCESSFUL:
       // Activate local planner once global solution is available
-      std::call_once(LOCAL_PLANNER_STARTED, [this]() {            // ensure the local planner is not started twice
+      if (!local_planner_started_)
+      {                                                           // ensure the local planner is not started twice
         if (!hybrid_planning_manager_->sendLocalPlannerAction())  // Start local planning
         {
           hybrid_planning_manager_->sendHybridPlanningResponse(false);
         }
-      });
+        local_planner_started_ = true;
+      }
       return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
     case HybridPlanningEvent::GLOBAL_PLANNING_ACTION_ABORTED:
       // Abort hybrid planning if now global solution is found
