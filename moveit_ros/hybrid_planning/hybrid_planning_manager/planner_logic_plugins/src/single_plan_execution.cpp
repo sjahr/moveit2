@@ -54,27 +54,40 @@ ReactionResult SinglePlanExecution::react(const HybridPlanningEvent& event)
   switch (event)
   {
     case HybridPlanningEvent::HYBRID_PLANNING_REQUEST_RECEIVED:
+      // Handle new hybrid planning request
       if (!hybrid_planning_manager_->sendGlobalPlannerAction())  // Start global planning
       {
         hybrid_planning_manager_->sendHybridPlanningResponse(false);
       }
-      break;
+      return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
     case HybridPlanningEvent::GLOBAL_SOLUTION_AVAILABLE:
+      // Do nothing since we wait for the global planning action to finish
+      return ReactionResult(event, "Do nothing", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
+    case HybridPlanningEvent::GLOBAL_PLANNING_ACTION_SUCCESSFUL:
+      // Activate local planner once global solution is available
       std::call_once(LOCAL_PLANNER_STARTED, [this]() {            // ensure the local planner is not started twice
         if (!hybrid_planning_manager_->sendLocalPlannerAction())  // Start local planning
         {
           hybrid_planning_manager_->sendHybridPlanningResponse(false);
         }
       });
-      break;
-    case HybridPlanningEvent::LOCAL_PLANNING_ACTION_FINISHED:
+      return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
+    case HybridPlanningEvent::GLOBAL_PLANNING_ACTION_ABORTED:
+      // Abort hybrid planning if now global solution is found
+      return ReactionResult(event, "Global planner failed to find a solution",
+                            moveit_msgs::msg::MoveItErrorCodes::PLANNING_FAILED);
+    case HybridPlanningEvent::LOCAL_PLANNING_ACTION_SUCCESSFUL:
+      // Finish hybrid planning action successfully because local planning action succeeded
       hybrid_planning_manager_->sendHybridPlanningResponse(true);
-      break;
+      return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
+    case HybridPlanningEvent::LOCAL_PLANNING_ACTION_ABORTED:
+      // Local planning failed so abort hybrid planning
+      return ReactionResult(event, "Local planner failed to find a solution",
+                            moveit_msgs::msg::MoveItErrorCodes::PLANNING_FAILED);
     default:
-      break;
-      // Do nothing
+      // Unknown event, abort hybrid planning
+      return ReactionResult(event, "Unknown event", moveit_msgs::msg::MoveItErrorCodes::FAILURE);
   }
-  return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
 }
 
 ReactionResult SinglePlanExecution::react(const std::string& event)
