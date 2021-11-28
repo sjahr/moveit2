@@ -75,7 +75,7 @@ ReactionResult SinglePlanExecution::react(const HybridPlanningEvent& event)
       }
       return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
     case HybridPlanningEvent::GLOBAL_PLANNING_ACTION_ABORTED:
-      // Abort hybrid planning if now global solution is found
+      // Abort hybrid planning if no global solution is found
       return ReactionResult(event, "Global planner failed to find a solution",
                             moveit_msgs::msg::MoveItErrorCodes::PLANNING_FAILED);
     case HybridPlanningEvent::LOCAL_PLANNING_ACTION_SUCCESSFUL:

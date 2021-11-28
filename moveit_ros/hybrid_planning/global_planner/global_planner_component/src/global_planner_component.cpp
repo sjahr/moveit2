@@ -135,9 +135,6 @@ void GlobalPlannerComponent::globalPlanningRequestCallback(
     goal_handle->abort(result);
   }
 
-  // Save newest planning solution
-  last_global_solution_ = planning_solution;  // TODO(sjahr) Add Service to expose this
-
   // Reset the global planner
   global_planner_instance_->reset();
 };

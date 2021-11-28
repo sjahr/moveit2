@@ -46,13 +46,13 @@ enum class HybridPlanningEvent
 {
   // Occurs when the hybrid planning manager receives a planning request
   HYBRID_PLANNING_REQUEST_RECEIVED,
-  // Indicates that the global planning action finished
+  // Result of the global planning action
   GLOBAL_PLANNING_ACTION_SUCCESSFUL,
   GLOBAL_PLANNING_ACTION_ABORTED,
   GLOBAL_PLANNING_ACTION_CANCELED,
   // Indicates that the global planner found a solution (This solution is not necessarily the last or best solution)
   GLOBAL_SOLUTION_AVAILABLE,
-  // Indicates that the local planning action finished
+  // Result of the local planning action
   LOCAL_PLANNING_ACTION_SUCCESSFUL,
   LOCAL_PLANNING_ACTION_ABORTED,
   LOCAL_PLANNING_ACTION_CANCELED,
