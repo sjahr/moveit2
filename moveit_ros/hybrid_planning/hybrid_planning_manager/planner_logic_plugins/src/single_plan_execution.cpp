@@ -41,9 +41,9 @@ const rclcpp::Logger LOGGER = rclcpp::get_logger("hybrid_planning_manager");
 
 namespace moveit::hybrid_planning
 {
-bool SinglePlanExecution::initialize(const std::shared_ptr<HybridPlanningManager>& hybrid_planning_manager)
+bool SinglePlanExecution::initialize(const std::shared_ptr<HybridPlannerInterface>& hybrid_planner_interface)
 {
-  hybrid_planning_manager_ = hybrid_planning_manager;
+  hybrid_planner_interface_ = hybrid_planner_interface;
   return true;
 }
 
@@ -53,9 +53,9 @@ ReactionResult SinglePlanExecution::react(const HybridPlanningEvent& event)
   {
     case HybridPlanningEvent::HYBRID_PLANNING_REQUEST_RECEIVED:
       // Handle new hybrid planning request
-      if (!hybrid_planning_manager_->sendGlobalPlannerAction())  // Start global planning
+      if (!hybrid_planner_interface_->sendGlobalPlannerAction())  // Start global planning
       {
-        hybrid_planning_manager_->sendHybridPlanningResponse(false);
+        hybrid_planner_interface_->sendHybridPlanningResponse(false);
       }
       // Reset local planner started flag
       local_planner_started_ = false;
@@ -66,10 +66,10 @@ ReactionResult SinglePlanExecution::react(const HybridPlanningEvent& event)
     case HybridPlanningEvent::GLOBAL_PLANNING_ACTION_SUCCESSFUL:
       // Activate local planner once global solution is available
       if (!local_planner_started_)
-      {                                                           // ensure the local planner is not started twice
-        if (!hybrid_planning_manager_->sendLocalPlannerAction())  // Start local planning
+      {                                                            // ensure the local planner is not started twice
+        if (!hybrid_planner_interface_->sendLocalPlannerAction())  // Start local planning
         {
-          hybrid_planning_manager_->sendHybridPlanningResponse(false);
+          hybrid_planner_interface_->sendHybridPlanningResponse(false);
         }
         local_planner_started_ = true;
       }
@@ -80,7 +80,7 @@ ReactionResult SinglePlanExecution::react(const HybridPlanningEvent& event)
                             moveit_msgs::msg::MoveItErrorCodes::PLANNING_FAILED);
     case HybridPlanningEvent::LOCAL_PLANNING_ACTION_SUCCESSFUL:
       // Finish hybrid planning action successfully because local planning action succeeded
-      hybrid_planning_manager_->sendHybridPlanningResponse(true);
+      hybrid_planner_interface_->sendHybridPlanningResponse(true);
       return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
     case HybridPlanningEvent::LOCAL_PLANNING_ACTION_ABORTED:
       // Local planning failed so abort hybrid planning

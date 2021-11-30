@@ -45,17 +45,17 @@ ReactionResult ReplanInvalidatedTrajectory::react(const std::string& event)
 {
   if (event == "collision_ahead")
   {
-    if (!hybrid_planning_manager_->sendGlobalPlannerAction())  // Start global planning
+    if (!hybrid_planner_interface_->sendGlobalPlannerAction())  // Start global planning
     {
-      hybrid_planning_manager_->sendHybridPlanningResponse(false);
+      hybrid_planner_interface_->sendHybridPlanningResponse(false);
     }
     return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
   }
   if (event == "local_planner_stuck")
   {
-    if (!hybrid_planning_manager_->sendGlobalPlannerAction())  // Start global planning
+    if (!hybrid_planner_interface_->sendGlobalPlannerAction())  // Start global planning
     {
-      hybrid_planning_manager_->sendHybridPlanningResponse(false);
+      hybrid_planner_interface_->sendHybridPlanningResponse(false);
     }
     return ReactionResult(event, "", moveit_msgs::msg::MoveItErrorCodes::SUCCESS);
   }
