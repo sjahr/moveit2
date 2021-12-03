@@ -58,7 +58,7 @@ public:
                      robot_trajectory::RobotTrajectory& local_trajectory) override;
   double getTrajectoryProgress(const moveit::core::RobotState& current_state) override;
   bool reset() override;
-  size_t getTargetWayPointIndex() override;
+  size_t getTargetWayPointIndex();
 
 private:
   std::size_t
