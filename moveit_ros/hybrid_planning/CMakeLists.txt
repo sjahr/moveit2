@@ -92,7 +92,7 @@ pluginlib_export_plugin_description_file(moveit_hybrid_planning simple_sampler_p
 pluginlib_export_plugin_description_file(moveit_hybrid_planning replan_invalidated_trajectory_plugin.xml)
 pluginlib_export_plugin_description_file(moveit_hybrid_planning forward_trajectory_plugin.xml)
 
-ament_export_include_directories(${THIS_PACKAGE_INCLUDE_DIRS})
+ament_export_include_directories(include)
 ament_export_libraries(${LIBRARIES})
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
