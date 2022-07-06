@@ -42,6 +42,8 @@
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
 #include <moveit/robot_state/conversions.h>
 
+#include <thread>
+
 namespace moveit_cpp
 {
 static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit.ros_planning_interface.planning_component");
@@ -59,7 +61,7 @@ PlanningComponent::PlanningComponent(const std::string& group_name, const MoveIt
   planning_pipeline_names_ = moveit_cpp_->getPlanningPipelineNames(group_name);
   plan_request_parameters_.load(node_);
   RCLCPP_DEBUG_STREAM(
-      LOGGER, "Plan request parameters loaded with --"
+      LOGGER, "Default plan request parameters loaded with --"
                   << " planning_pipeline: " << plan_request_parameters_.planning_pipeline << ","
                   << " planner_id: " << plan_request_parameters_.planner_id << ","
                   << " planning_time: " << plan_request_parameters_.planning_time << ","
@@ -115,6 +117,7 @@ bool PlanningComponent::setPathConstraints(const moveit_msgs::msg::Constraints& 
 
 PlanningComponent::PlanSolution PlanningComponent::plan(const PlanRequestParameters& parameters)
 {
+  // Reset last solution and check if joint_model_group exists
   last_plan_solution_ = std::make_shared<PlanSolution>();
   if (!joint_model_group_)
   {
@@ -124,8 +127,7 @@ PlanningComponent::PlanSolution PlanningComponent::plan(const PlanRequestParamet
   }
 
   // Clone current planning scene
-  planning_scene_monitor::PlanningSceneMonitorPtr planning_scene_monitor =
-      moveit_cpp_->getPlanningSceneMonitorNonConst();
+  planning_scene_monitor::PlanningSceneMonitorPtr planning_scene_monitor = moveit_cpp_->getPlanningSceneMonitor();
   planning_scene_monitor->updateFrameTransforms();
   const planning_scene::PlanningScenePtr planning_scene = [planning_scene_monitor] {
     planning_scene_monitor::LockedPlanningSceneRO ls(planning_scene_monitor);
@@ -145,7 +147,7 @@ PlanningComponent::PlanSolution PlanningComponent::plan(const PlanRequestParamet
     req.workspace_parameters = workspace_parameters_;
 
   // Set start state
-  moveit::core::RobotStatePtr start_state = considered_start_state_;
+  moveit::core::RobotStatePtr start_state = considered_start_state_;  // TODO pass as function argument
   if (!start_state)
     start_state = moveit_cpp_->getCurrentState();
   start_state->update();
@@ -159,14 +161,15 @@ PlanningComponent::PlanSolution PlanningComponent::plan(const PlanRequestParamet
     last_plan_solution_->error_code = moveit::core::MoveItErrorCode::INVALID_GOAL_CONSTRAINTS;
     return *last_plan_solution_;
   }
-  req.goal_constraints = current_goal_constraints_;
+  req.goal_constraints = current_goal_constraints_;  // TODO pass as function argument
 
   // Set path constraints
-  req.path_constraints = current_path_constraints_;
+  req.path_constraints = current_path_constraints_;  // TODO pass as function argument
 
   // Run planning attempt
   ::planning_interface::MotionPlanResponse res;
-  if (planning_pipeline_names_.find(parameters.planning_pipeline) == planning_pipeline_names_.end())
+  if (planning_pipeline_names_.find(parameters.planning_pipeline) ==
+      planning_pipeline_names_.end())  // TODO pass as function argument
   {
     RCLCPP_ERROR(LOGGER, "No planning pipeline available for name '%s'", parameters.planning_pipeline.c_str());
     last_plan_solution_->error_code = moveit::core::MoveItErrorCode::FAILURE;
@@ -195,7 +198,45 @@ PlanningComponent::PlanSolution PlanningComponent::plan(const PlanRequestParamet
   //    visual_tools_->publishRobotState(last_solution_trajectory_->getLastWayPoint(), rviz_visual_tools::TRANSLUCENT);
   //  }
   //}
-  return *last_plan_solution_;
+  return *last_plan_solution_;  // TODO: Make better
+}
+
+PlanningComponent::PlanSolution PlanningComponent::plan(const MultiPipelinePlanRequestParameters& parameters)
+{
+  PlanSolutions planning_solutions{ parameters.multi_plan_request_parameters.size() };
+  std::vector<std::thread> planning_threads;
+  planning_threads.reserve(parameters.multi_plan_request_parameters.size());
+
+  for (auto const& plan_request_parameter : parameters.multi_plan_request_parameters)
+  {
+    RCLCPP_INFO(LOGGER, "1");
+    auto planning_thread = std::thread([&]() {
+      RCLCPP_INFO(LOGGER, "2");
+      auto solution = plan(plan_request_parameter);
+      RCLCPP_INFO(LOGGER, "3");
+      planning_solutions.pushBack(solution);
+      RCLCPP_INFO(LOGGER, "4");
+    });
+    planning_threads.push_back(std::move(planning_thread));
+  }
+
+RCLCPP_INFO(LOGGER, "5");
+  // Join
+  for (auto& planning_thread : planning_threads)
+  {
+    RCLCPP_INFO(LOGGER, "6");
+    if (planning_thread.joinable())
+    {
+      RCLCPP_INFO(LOGGER, "7");
+      planning_thread.join();
+    }
+  }
+  RCLCPP_INFO(LOGGER, "8");
+
+  // Clear all threads
+
+  // Thread safe storage
+  return planning_solutions.getSolutions().at(0);
 }
 
 PlanningComponent::PlanSolution PlanningComponent::plan()

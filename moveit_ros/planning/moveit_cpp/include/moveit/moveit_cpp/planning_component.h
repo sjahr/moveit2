@@ -44,6 +44,8 @@
 #include <moveit/robot_state/conversions.h>
 #include <moveit/utils/moveit_error_code.h>
 
+#include <mutex>
+
 namespace moveit_cpp
 {
 MOVEIT_CLASS_FORWARD(PlanningComponent);  // Defines PlanningComponentPtr, ConstPtr, WeakPtr... etc
@@ -73,6 +75,33 @@ public:
     }
   };
 
+  class PlanSolutions
+  {
+  public:
+    /// \brief Constructor
+    PlanSolutions(const size_t expected_size = 0)
+    {
+      solutions_.reserve(expected_size);
+    }
+
+    /// \brief Thread safe method to add PlanSolutions to this data structure
+    void pushBack(PlanSolution plan_solution)
+    {
+      std::lock_guard<std::mutex> lock_guard(solutions_mutex_);
+      solutions_.push_back(plan_solution);
+    }
+
+    /// \brief Get solutions
+    std::vector<PlanSolution> const& getSolutions()
+    {
+      return solutions_;
+    }
+
+  private:
+    std::vector<PlanSolution> solutions_;
+    std::mutex solutions_mutex_;
+  };
+
   /// Planner parameters provided with the MotionPlanRequest
   struct PlanRequestParameters
   {
@@ -93,38 +122,44 @@ public:
       if (!node->get_parameter_or(ns + "planner_id", planner_id, std::string("")))
       {
         RCLCPP_WARN(node->get_logger(),
-                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
-                     (ns + "planner_id").c_str());
+                    "Parameter \'%s\' not found in config use default value instead, check parameter type and "
+                    "namespace in YAML file",
+                    (ns + "planner_id").c_str());
       }
       if (!node->get_parameter_or(ns + "planning_pipeline", planning_pipeline, std::string("")))
       {
         RCLCPP_WARN(node->get_logger(),
-                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
-                     (ns + "planning_pipeline").c_str());
+                    "Parameter \'%s\' not found in config use default value instead, check parameter type and "
+                    "namespace in YAML file",
+                    (ns + "planning_pipeline").c_str());
       }
       if (!node->get_parameter_or(ns + "planning_time", planning_time, 1.0))
       {
         RCLCPP_WARN(node->get_logger(),
-                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
-                     (ns + "planning_time").c_str());
+                    "Parameter \'%s\' not found in config use default value instead, check parameter type and "
+                    "namespace in YAML file",
+                    (ns + "planning_time").c_str());
       }
       if (!node->get_parameter_or(ns + "planning_attempts", planning_attempts, 5))
       {
         RCLCPP_WARN(node->get_logger(),
-                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
-                     (ns + "planning_attempts").c_str());
+                    "Parameter \'%s\' not found in config use default value instead, check parameter type and "
+                    "namespace in YAML file",
+                    (ns + "planning_attempts").c_str());
       }
       if (!node->get_parameter_or(ns + "max_velocity_scaling_factor", max_velocity_scaling_factor, 1.0))
       {
         RCLCPP_WARN(node->get_logger(),
-                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
-                     (ns + "max_velocity_scaling_factor").c_str());
+                    "Parameter \'%s\' not found in config use default value instead, check parameter type and "
+                    "namespace in YAML file",
+                    (ns + "max_velocity_scaling_factor").c_str());
       }
       if (!node->get_parameter_or(ns + "max_acceleration_scaling_factor", max_acceleration_scaling_factor, 1.0))
       {
         RCLCPP_WARN(node->get_logger(),
-                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
-                     (ns + "max_acceleration_scaling_factor").c_str());
+                    "Parameter \'%s\' not found in config use default value instead, check parameter type and "
+                    "namespace in YAML file",
+                    (ns + "max_acceleration_scaling_factor").c_str());
       }
     }
   };
@@ -213,6 +248,10 @@ public:
    * provided PlanRequestParameters. */
   PlanSolution plan(const PlanRequestParameters& parameters);
 
+  /** \brief Run a plan from start or current state to fulfill the last goal constraints provided by setGoal() using the
+   * provided PlanRequestParameters. */
+  PlanSolution plan(const MultiPipelinePlanRequestParameters& parameters);
+
   /** \brief Execute the latest computed solution trajectory computed by plan(). By default this function terminates
    * after the execution is complete. The execution can be run in background by setting blocking to false. */
   bool execute(bool blocking = true);
@@ -223,7 +262,7 @@ public:
 private:
   // Core properties and instances
   rclcpp::Node::SharedPtr node_;
-  MoveItCppPtr moveit_cpp_;
+  MoveItCppPtr moveit_cpp_;  // TODO Make thread safe!
   const std::string group_name_;
   // The robot_model_ member variable of MoveItCpp class will manually free the joint_model_group_ resources
   const moveit::core::JointModelGroup* joint_model_group_;
@@ -237,7 +276,7 @@ private:
   PlanRequestParameters plan_request_parameters_;
   moveit_msgs::msg::WorkspaceParameters workspace_parameters_;
   bool workspace_parameters_set_ = false;
-  PlanSolutionPtr last_plan_solution_;
+  PlanSolutionPtr last_plan_solution_;  // TODO Make thread safe!
 
   // common properties for goals
   // TODO(henningkayser): support goal tolerances
