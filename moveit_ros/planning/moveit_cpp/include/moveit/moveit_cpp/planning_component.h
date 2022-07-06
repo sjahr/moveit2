@@ -83,15 +83,67 @@ public:
     double max_velocity_scaling_factor;
     double max_acceleration_scaling_factor;
 
-    void load(const rclcpp::Node::SharedPtr& node)
+    void load(const rclcpp::Node::SharedPtr& node, const std::string& param_namespace = "")
     {
       std::string ns = "plan_request_params.";
-      node->get_parameter_or(ns + "planner_id", planner_id, std::string(""));
-      node->get_parameter_or(ns + "planning_pipeline", planning_pipeline, std::string(""));
-      node->get_parameter_or(ns + "planning_time", planning_time, 1.0);
-      node->get_parameter_or(ns + "planning_attempts", planning_attempts, 5);
-      node->get_parameter_or(ns + "max_velocity_scaling_factor", max_velocity_scaling_factor, 1.0);
-      node->get_parameter_or(ns + "max_acceleration_scaling_factor", max_acceleration_scaling_factor, 1.0);
+      if (!param_namespace.empty())
+      {
+        ns = param_namespace + ".plan_request_params.";
+      }
+      if (!node->get_parameter_or(ns + "planner_id", planner_id, std::string("")))
+      {
+        RCLCPP_WARN(node->get_logger(),
+                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
+                     (ns + "planner_id").c_str());
+      }
+      if (!node->get_parameter_or(ns + "planning_pipeline", planning_pipeline, std::string("")))
+      {
+        RCLCPP_WARN(node->get_logger(),
+                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
+                     (ns + "planning_pipeline").c_str());
+      }
+      if (!node->get_parameter_or(ns + "planning_time", planning_time, 1.0))
+      {
+        RCLCPP_WARN(node->get_logger(),
+                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
+                     (ns + "planning_time").c_str());
+      }
+      if (!node->get_parameter_or(ns + "planning_attempts", planning_attempts, 5))
+      {
+        RCLCPP_WARN(node->get_logger(),
+                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
+                     (ns + "planning_attempts").c_str());
+      }
+      if (!node->get_parameter_or(ns + "max_velocity_scaling_factor", max_velocity_scaling_factor, 1.0))
+      {
+        RCLCPP_WARN(node->get_logger(),
+                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
+                     (ns + "max_velocity_scaling_factor").c_str());
+      }
+      if (!node->get_parameter_or(ns + "max_acceleration_scaling_factor", max_acceleration_scaling_factor, 1.0))
+      {
+        RCLCPP_WARN(node->get_logger(),
+                     "Parameter \'%s\' not found in config use default value instead, check parameter type and namespace in YAML file",
+                     (ns + "max_acceleration_scaling_factor").c_str());
+      }
+    }
+  };
+
+  /// Planner parameters provided with the MotionPlanRequest
+  struct MultiPipelinePlanRequestParameters
+  {
+    std::vector<PlanRequestParameters> multi_plan_request_parameters;
+
+    void load(const rclcpp::Node::SharedPtr& node, const std::vector<std::string>& planning_pipeline_names)
+    {
+      multi_plan_request_parameters.reserve(planning_pipeline_names.size());
+
+      for (auto const& planning_pipeline_name : planning_pipeline_names)
+      {
+        PlanRequestParameters parameters;
+        parameters.load(node, planning_pipeline_name);
+        multi_plan_request_parameters.push_back(parameters);
+      }
     }
   };
 
