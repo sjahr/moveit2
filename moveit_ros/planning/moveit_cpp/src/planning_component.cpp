@@ -167,6 +167,7 @@ PlanningComponent::PlanSolution PlanningComponent::plan(const PlanRequestParamet
   req.path_constraints = current_path_constraints_;  // TODO pass as function argument
 
   // Run planning attempt
+  std::lock_guard<std::mutex> lock_guard(plan_mutex_);
   ::planning_interface::MotionPlanResponse res;
   if (planning_pipeline_names_.find(parameters.planning_pipeline) ==
       planning_pipeline_names_.end())  // TODO pass as function argument

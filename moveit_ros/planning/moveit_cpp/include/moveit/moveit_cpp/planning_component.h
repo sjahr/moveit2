@@ -267,6 +267,8 @@ private:
   // The robot_model_ member variable of MoveItCpp class will manually free the joint_model_group_ resources
   const moveit::core::JointModelGroup* joint_model_group_;
 
+  std::mutex plan_mutex_;
+
   // Planning
   std::set<std::string> planning_pipeline_names_;
   // The start state used in the planning motion request
