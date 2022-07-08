@@ -46,7 +46,7 @@
 /moveit_core/exceptions/                                    @tylerjw
 /moveit_core/kinematic_constraints/                         @rhaschke
 /moveit_core/kinematics_base/                               @rhaschke @mlautman
-/moveit_core/kinematics_metrics/                            @gavanderhoorn
+/moveit_core/metrics/                                       @gavanderhoorn
 /moveit_core/macros/                                        @tylerjw
 /moveit_core/planning_interface/                            @rhaschke @felixvd
 /moveit_core/planning_request_adapter/                      @rhaschke

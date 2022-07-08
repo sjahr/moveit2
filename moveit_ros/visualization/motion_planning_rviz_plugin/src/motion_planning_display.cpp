@@ -1189,7 +1189,7 @@ void MotionPlanningDisplay::onRobotModelLoaded()
     planning_group_property_->setStdString(groups[0]);
 
   modified_groups_.clear();
-  kinematics_metrics_ = std::make_shared<kinematics_metrics::KinematicsMetrics>(getRobotModel());
+  kinematics_metrics_ = std::make_shared<moveit::core::KinematicsMetrics>(getRobotModel());
 
   geometry_msgs::msg::Vector3 gravity_vector;
   gravity_vector.x = 0.0;

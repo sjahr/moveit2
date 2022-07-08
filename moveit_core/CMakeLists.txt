@@ -66,7 +66,7 @@ set(THIS_PACKAGE_INCLUDE_DIRS
     collision_distance_field/include
     dynamics_solver/include
     kinematics_base/include
-    kinematics_metrics/include
+    metrics/include
     robot_model/include
     transforms/include
     robot_state/include
@@ -96,7 +96,7 @@ set(THIS_PACKAGE_LIBRARIES
     moveit_exceptions
     moveit_kinematics_base
     moveit_kinematic_constraints
-    moveit_kinematics_metrics
+    moveit_metrics
     moveit_planning_interface
     moveit_planning_scene
     moveit_planning_request_adapter
@@ -161,7 +161,7 @@ add_subdirectory(dynamics_solver)
 add_subdirectory(exceptions)
 add_subdirectory(kinematics_base)
 add_subdirectory(kinematic_constraints)
-add_subdirectory(kinematics_metrics)
+add_subdirectory(metrics)
 add_subdirectory(macros)
 add_subdirectory(online_signal_smoothing)
 add_subdirectory(planning_interface)

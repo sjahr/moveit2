@@ -39,7 +39,9 @@
 #include <moveit/robot_state/robot_state.h>
 
 /** @brief Namespace for kinematics metrics */
-namespace kinematics_metrics
+namespace moveit
+{
+namespace core
 {
 MOVEIT_CLASS_FORWARD(KinematicsMetrics);  // Defines KinematicsMetricsPtr, ConstPtr, WeakPtr... etc
 
@@ -155,4 +157,5 @@ private:
 
   double penalty_multiplier_;
 };
-}  // namespace kinematics_metrics
+} // namespace core
+} // namespace moveit

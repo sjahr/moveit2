@@ -38,13 +38,15 @@
 #include <Eigen/Eigenvalues>
 #include <limits>
 #include <math.h>
-#include <moveit/kinematics_metrics/kinematics_metrics.h>
+#include <moveit/metrics/kinematics_metrics.h>
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
 
-namespace kinematics_metrics
+namespace moveit
 {
-static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit_kinematics_metrics.kinematics_metrics");
+namespace core
+{
+static const rclcpp::Logger LOGGER = rclcpp::get_logger("metrics.kinematics_metrics");
 
 double KinematicsMetrics::getJointLimitsPenalty(const moveit::core::RobotState& state,
                                                 const moveit::core::JointModelGroup* joint_model_group) const
@@ -243,4 +245,5 @@ bool KinematicsMetrics::getManipulability(const moveit::core::RobotState& state,
   return true;
 }
 
-}  // end of namespace kinematics_metrics
+} // namespace core
+} // namespace moveit

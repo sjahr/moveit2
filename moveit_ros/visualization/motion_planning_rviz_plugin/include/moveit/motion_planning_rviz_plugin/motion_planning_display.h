@@ -47,7 +47,7 @@
 #include <moveit/robot_interaction/interaction_handler.h>
 
 #include <moveit/planning_scene_monitor/planning_scene_monitor.h>
-#include <moveit/kinematics_metrics/kinematics_metrics.h>
+#include <moveit/metrics/kinematics_metrics.h>
 #include <moveit/dynamics_solver/dynamics_solver.h>
 
 #include <rclcpp/rclcpp.hpp>
@@ -292,7 +292,7 @@ protected:
   std::map<std::string, bool> position_only_ik_;
 
   // Metric calculations
-  kinematics_metrics::KinematicsMetricsPtr kinematics_metrics_;
+  moveit::core::KinematicsMetricsPtr kinematics_metrics_;
   std::map<std::string, dynamics_solver::DynamicsSolverPtr> dynamics_solver_;
   std::mutex update_metrics_lock_;
 
