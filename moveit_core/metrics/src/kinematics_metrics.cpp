@@ -245,5 +245,5 @@ bool KinematicsMetrics::getManipulability(const moveit::core::RobotState& state,
   return true;
 }
 
-} // namespace core
-} // namespace moveit
+}  // namespace core
+}  // namespace moveit

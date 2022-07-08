@@ -157,5 +157,5 @@ private:
 
   double penalty_multiplier_;
 };
-} // namespace core
-} // namespace moveit
+}  // namespace core
+}  // namespace moveit
