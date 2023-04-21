@@ -103,7 +103,8 @@ bool PlanningComponent::setTrajectoryConstraints(const moveit_msgs::msg::Traject
   return true;
 }
 
-planning_interface::MotionPlanResponse PlanningComponent::plan(const PlanRequestParameters& parameters)
+planning_interface::MotionPlanResponse PlanningComponent::plan(const PlanRequestParameters& parameters,
+                                              planning_scene::PlanningScenePtr planning_scene)
 {
   auto plan_solution = planning_interface::MotionPlanResponse();
 
@@ -119,7 +120,7 @@ planning_interface::MotionPlanResponse PlanningComponent::plan(const PlanRequest
   if (current_goal_constraints_.empty())
   {
     RCLCPP_ERROR(LOGGER, "No goal constraints set for planning request");
-    plan_solution.error_code = moveit::core::MoveItErrorCode::INVALID_GOAL_CONSTRAINTS;
+    plan_solution.error_code_ = moveit::core::MoveItErrorCode::INVALID_GOAL_CONSTRAINTS;
     return plan_solution;
   }
 
@@ -156,7 +157,7 @@ planning_interface::MotionPlanResponse PlanningComponent::plan(
   if (!joint_model_group_)
   {
     RCLCPP_ERROR(LOGGER, "Failed to retrieve joint model group for name '%s'.", group_name_.c_str());
-    plan_solution.error_code = moveit::core::MoveItErrorCode::INVALID_GROUP_NAME;
+    plan_solution.error_code_ = moveit::core::MoveItErrorCode::INVALID_GROUP_NAME;
     return plan_solution;
   }
 
@@ -200,7 +201,7 @@ planning_interface::MotionPlanResponse PlanningComponent::plan(
   catch (std::out_of_range&)
   {
     RCLCPP_ERROR(LOGGER, "MotionPlanResponse vector was empty after parallel planning");
-    plan_solution.error_code = moveit::core::MoveItErrorCode::INVALID_GOAL_CONSTRAINTS;
+    plan_solution.error_code_ = moveit::core::MoveItErrorCode::INVALID_GOAL_CONSTRAINTS;
   }
   // Run planning attempt
   return plan_solution;

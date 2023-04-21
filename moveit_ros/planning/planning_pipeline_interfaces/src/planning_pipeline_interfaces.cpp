@@ -54,7 +54,7 @@ planWithSinglePipeline(const ::planning_interface::MotionPlanRequest& motion_pla
   if (it == planning_pipelines.end())
   {
     RCLCPP_ERROR(LOGGER, "No planning pipeline available for name '%s'", motion_plan_request.pipeline_id.c_str());
-    motion_plan_response.error_code = moveit::core::MoveItErrorCode::FAILURE;
+    motion_plan_response.error_code_ = moveit::core::MoveItErrorCode::FAILURE;
     return motion_plan_response;
   }
   const planning_pipeline::PlanningPipelinePtr pipeline = it->second;
@@ -99,9 +99,9 @@ const std::vector<::planning_interface::MotionPlanResponse> planWithParallelPipe
       {
         RCLCPP_ERROR(LOGGER, "Planning pipeline '%s' threw exception '%s'", request.pipeline_id.c_str(), e.what());
         plan_solution = ::planning_interface::MotionPlanResponse();
-        plan_solution.error_code = moveit::core::MoveItErrorCode::FAILURE;
+        plan_solution.error_code_ = moveit::core::MoveItErrorCode::FAILURE;
       }
-      plan_solution.planner_id = request.planner_id;
+      plan_solution.planner_id_ = request.planner_id;
       plan_responses_container.pushBack(plan_solution);
 
       if (stopping_criterion_callback != nullptr)
