@@ -54,6 +54,7 @@ bool callPlannerInterfaceSolve(
   planning_interface::PlanningContextPtr context = planner.getPlanningContext(planning_scene, req, res.error_code);
   if (context)
   {
+    context->setStateCostFunction(state_cost_function);
     return context->solve(res);
   }
   else

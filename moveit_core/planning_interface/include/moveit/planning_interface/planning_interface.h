@@ -120,6 +120,9 @@ public:
   /** \brief Set the planning request for this context */
   void setMotionPlanRequest(const MotionPlanRequest& request);
 
+  /** \brief Set the planning request for this context */
+  void setStateCostFunction(const StateCostFn& state_cost_function);
+
   /** \brief Solve the motion planning problem and store the result in \e res. This function should not clear data
    * structures before computing. The constructor and clear() do that. */
   virtual bool solve(MotionPlanResponse& res) = 0;
@@ -147,6 +150,9 @@ protected:
 
   /// The planning request for this context
   MotionPlanRequest request_;
+
+  // Cost function for individual states
+  StateCostFn state_cost_function_ = StateCostFn();
 };
 
 MOVEIT_CLASS_FORWARD(PlannerManager);  // Defines PlannerManagerPtr, ConstPtr, WeakPtr... etc

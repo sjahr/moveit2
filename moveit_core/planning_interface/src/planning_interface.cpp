@@ -79,6 +79,11 @@ void PlanningContext::setPlanningScene(const planning_scene::PlanningSceneConstP
   planning_scene_ = planning_scene;
 }
 
+void PlanningContext::setStateCostFunction(const StateCostFn& state_cost_function)
+{
+  state_cost_function_ = state_cost_function;
+}
+
 void PlanningContext::setMotionPlanRequest(const MotionPlanRequest& request)
 {
   request_ = request;
