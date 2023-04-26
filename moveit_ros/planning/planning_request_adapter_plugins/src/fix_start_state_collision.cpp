@@ -74,7 +74,8 @@ public:
 
   bool adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene,
                     const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
-                    std::vector<std::size_t>& added_path_index) const override
+                    std::vector<std::size_t>& added_path_index,
+                    const planning_interface::StateCostFn& state_cost_function) const override
   {
     RCLCPP_DEBUG(LOGGER, "Running '%s'", getDescription().c_str());
 
@@ -136,7 +137,7 @@ public:
       {
         planning_interface::MotionPlanRequest req2 = req;
         moveit::core::robotStateToRobotStateMsg(start_state, req2.start_state);
-        bool solved = planner(planning_scene, req2, res);
+        bool solved = planner(planning_scene, req2, res, state_cost_function);
         if (solved && !res.trajectory->empty())
         {
           // heuristically decide a duration offset for the trajectory (induced by the additional point added as a
@@ -171,7 +172,7 @@ public:
       {
         RCLCPP_DEBUG(LOGGER, "Start state is valid with respect to group %s", creq.group_name.c_str());
       }
-      return planner(planning_scene, req, res);
+      return planner(planning_scene, req, res, state_cost_function);
     }
   }
 

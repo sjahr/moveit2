@@ -65,7 +65,8 @@ public:
 
   bool adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene,
                     const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
-                    std::vector<std::size_t>& added_path_index) const override
+                    std::vector<std::size_t>& added_path_index,
+                    const planning_interface::StateCostFn& state_cost_function) const override
   {
     RCLCPP_DEBUG(LOGGER, "Running '%s'", getDescription().c_str());
 
@@ -90,7 +91,7 @@ public:
       // index information from that call
       std::vector<std::size_t> added_path_index_temp;
       added_path_index_temp.swap(added_path_index);
-      bool solved1 = planner(planning_scene, req2, res2);
+      bool solved1 = planner(planning_scene, req2, res2, state_cost_function);
       added_path_index_temp.swap(added_path_index);
 
       if (solved1)
@@ -100,7 +101,7 @@ public:
 
         // extract the last state of the computed motion plan and set it as the new start state
         moveit::core::robotStateToRobotStateMsg(res2.trajectory->getLastWayPoint(), req3.start_state);
-        bool solved2 = planner(planning_scene, req3, res);
+        bool solved2 = planner(planning_scene, req3, res, state_cost_function);
         res.planning_time += res2.planning_time;
 
         if (solved2)
@@ -134,7 +135,7 @@ public:
     else
     {
       RCLCPP_DEBUG(LOGGER, "Path constraints are OK. Running usual motion plan.");
-      return planner(planning_scene, req, res);
+      return planner(planning_scene, req, res, state_cost_function);
     }
   }
 };

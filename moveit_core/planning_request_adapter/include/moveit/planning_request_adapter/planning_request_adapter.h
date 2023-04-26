@@ -58,7 +58,7 @@ public:
   /// \brief Functional interface to call a planning function
   using PlannerFn =
       std::function<bool(const planning_scene::PlanningSceneConstPtr&, const planning_interface::MotionPlanRequest&,
-                         planning_interface::MotionPlanResponse&)>;
+                         planning_interface::MotionPlanResponse&, const planning_interface::StateCostFn&)>;
 
   virtual ~PlanningRequestAdapter() = default;
 
@@ -84,10 +84,11 @@ public:
    *  @param req Motion planning request with a set of constraints
    *  @param res Reference to which the generated motion plan response is written to
    *  @return True if response got generated correctly */
-  bool adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
-                    const planning_scene::PlanningSceneConstPtr& planning_scene,
-                    const planning_interface::MotionPlanRequest& req,
-                    planning_interface::MotionPlanResponse& res) const;
+  bool
+  adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
+               const planning_scene::PlanningSceneConstPtr& planning_scene,
+               const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
+               const planning_interface::StateCostFn& state_cost_function = planning_interface::StateCostFn()) const;
 
   /** \brief Adapt the planning request if needed, call the planner
       function \e planner and update the planning response if
@@ -103,10 +104,12 @@ public:
      current state itself appears to touch obstacles). This is helpful because the added states should not be considered
      invalid in all situations.
    *  @return True if response got generated correctly */
-  bool adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
-                    const planning_scene::PlanningSceneConstPtr& planning_scene,
-                    const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
-                    std::vector<std::size_t>& added_path_index) const;
+  bool
+  adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
+               const planning_scene::PlanningSceneConstPtr& planning_scene,
+               const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
+               std::vector<std::size_t>& added_path_index,
+               const planning_interface::StateCostFn& state_cost_function = planning_interface::StateCostFn()) const;
 
   /** \brief Adapt the planning request if needed, call the planner
       function \e planner and update the planning response if
@@ -122,10 +125,11 @@ public:
         current state itself appears to touch obstacles). This is helpful because the added states should not be
    considered invalid in all situations.
    *  @return True if response got generated correctly */
-  virtual bool adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene,
-                            const planning_interface::MotionPlanRequest& req,
-                            planning_interface::MotionPlanResponse& res,
-                            std::vector<std::size_t>& added_path_index) const = 0;
+  virtual bool
+  adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene,
+               const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
+               std::vector<std::size_t>& added_path_index,
+               const planning_interface::StateCostFn& state_cost_function = planning_interface::StateCostFn()) const = 0;
 
 protected:
   /** \brief Helper param for getting a parameter using a namespace **/
@@ -163,10 +167,11 @@ public:
    *  @param req Motion planning request with a set of constraints
    *  @param res Reference to which the generated motion plan response is written to
    *  @return True if response got generated correctly */
-  bool adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
-                    const planning_scene::PlanningSceneConstPtr& planning_scene,
-                    const planning_interface::MotionPlanRequest& req,
-                    planning_interface::MotionPlanResponse& res) const;
+  bool
+  adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
+               const planning_scene::PlanningSceneConstPtr& planning_scene,
+               const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
+               const planning_interface::StateCostFn& state_cost_function = planning_interface::StateCostFn()) const;
 
   /** \brief Iterate through the chain and call all adapters and planners in the correct order
    *  @param planner Pointer to the planner used to solve the passed problem
@@ -178,10 +183,12 @@ public:
           current state itself appears to touch obstacles). This is helpful because the added states should not be
           considered invalid in all situations.
    *  @return True if response got generated correctly */
-  bool adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
-                    const planning_scene::PlanningSceneConstPtr& planning_scene,
-                    const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
-                    std::vector<std::size_t>& added_path_index) const;
+  bool
+  adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,
+               const planning_scene::PlanningSceneConstPtr& planning_scene,
+               const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
+               std::vector<std::size_t>& added_path_index,
+               const planning_interface::StateCostFn& state_cost_function = planning_interface::StateCostFn()) const;
 
 private:
   std::vector<PlanningRequestAdapterConstPtr> adapters_;
