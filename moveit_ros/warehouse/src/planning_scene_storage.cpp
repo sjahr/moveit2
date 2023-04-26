@@ -106,7 +106,7 @@ std::string moveit_warehouse::PlanningSceneStorage::getMotionPlanRequestName(
 
   // if there are no requests stored, we are done
   if (existing_requests.empty())
-    return "";
+    return std::string();
 
   // compute the serialization of the message passed as argument
   rclcpp::Serialization<moveit_msgs::msg::MotionPlanRequest> serializer;
@@ -131,7 +131,7 @@ std::string moveit_warehouse::PlanningSceneStorage::getMotionPlanRequestName(
       return existing_request->lookupString(MOTION_PLAN_REQUEST_ID_NAME);
     }
   }
-  return "";
+  return std::string();
 }
 
 void moveit_warehouse::PlanningSceneStorage::addPlanningQuery(const moveit_msgs::msg::MotionPlanRequest& planning_query,

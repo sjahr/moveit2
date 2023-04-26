@@ -91,7 +91,7 @@ std::string CurrentStateMonitorMiddlewareHandle::getJointStateTopicName() const
   }
   else
   {
-    return "";
+    return std::string();
   }
 }
 

@@ -66,7 +66,7 @@ public:
    */
   virtual std::string getDefaultValue(const std::string& /*controller_type*/) const
   {
-    return "";
+    return std::string();
   }
 
   std::string display_name_;

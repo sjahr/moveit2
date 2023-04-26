@@ -70,7 +70,7 @@ public:
   /// Get a short string that identifies the planning request adapter
   virtual std::string getDescription() const
   {
-    return "";
+    return std::string();
   }
 
   bool adaptAndPlan(const planning_interface::PlannerManagerPtr& planner,

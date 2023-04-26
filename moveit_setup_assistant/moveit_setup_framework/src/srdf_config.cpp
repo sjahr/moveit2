@@ -171,7 +171,7 @@ std::string SRDFConfig::getChildOfJoint(const std::string& joint_name) const
   // Check that a joint model was found
   if (!joint_model)
   {
-    return "";
+    return std::string();
   }
   return joint_model->getChildLinkModel()->getName();
 }

@@ -97,7 +97,7 @@ public:
       }
       else
       {
-        return "";
+        return std::string();
       }
     }
   };

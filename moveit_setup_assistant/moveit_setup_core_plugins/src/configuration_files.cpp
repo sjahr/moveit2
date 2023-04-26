@@ -170,7 +170,7 @@ std::string ConfigurationFiles::getInvalidGroupName() const
       continue;
     return group.name_;
   }
-  return "";
+  return std::string();
 }
 
 }  // namespace core

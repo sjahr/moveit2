@@ -104,7 +104,7 @@ bool PlannerManager::initialize(const moveit::core::RobotModelConstPtr& /*unused
 
 std::string PlannerManager::getDescription() const
 {
-  return "";
+  return std::string();
 }
 
 PlanningContextPtr PlannerManager::getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,

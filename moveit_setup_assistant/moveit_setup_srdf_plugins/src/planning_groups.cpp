@@ -350,7 +350,7 @@ std::string PlanningGroups::getJointType(const std::string& joint_name) const
   const moveit::core::JointModel* joint_model = srdf_config_->getRobotModel()->getJointModel(joint_name);
   if (!joint_model)
   {
-    return "";
+    return std::string();
   }
   return joint_model->getTypeName();
 }
