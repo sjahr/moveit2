@@ -331,36 +331,53 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
     optimizer = it->second;
     cfg.erase(it);
 
-    if (optimizer == "PathLengthOptimizationObjective")
+    // Warn if this config will be overwritten
+    if (state_cost_function_ != nullptr)
     {
-      objective =
-          std::make_shared<ompl::base::PathLengthOptimizationObjective>(ompl_simple_setup_->getSpaceInformation());
-    }
-    else if (optimizer == "MinimaxObjective")
-    {
-      objective = std::make_shared<ompl::base::MinimaxObjective>(ompl_simple_setup_->getSpaceInformation());
-    }
-    else if (optimizer == "StateCostIntegralObjective")
-    {
-      objective = std::make_shared<ompl::base::StateCostIntegralObjective>(ompl_simple_setup_->getSpaceInformation());
-    }
-    else if (optimizer == "MechanicalWorkOptimizationObjective")
-    {
-      objective =
-          std::make_shared<ompl::base::MechanicalWorkOptimizationObjective>(ompl_simple_setup_->getSpaceInformation());
-    }
-    else if (optimizer == "MaximizeMinClearanceObjective")
-    {
-      objective =
-          std::make_shared<ompl::base::MaximizeMinClearanceObjective>(ompl_simple_setup_->getSpaceInformation());
+      RCLCPP_WARN(LOGGER, "%s: User defined optimization function will overwrite OMPL config optimization objective %s",
+                  name_.c_str(), optimizer.c_str());
     }
     else
     {
-      objective =
-          std::make_shared<ompl::base::PathLengthOptimizationObjective>(ompl_simple_setup_->getSpaceInformation());
-    }
+      if (optimizer == "PathLengthOptimizationObjective")
+      {
+        objective =
+            std::make_shared<ompl::base::PathLengthOptimizationObjective>(ompl_simple_setup_->getSpaceInformation());
+      }
+      else if (optimizer == "MinimaxObjective")
+      {
+        objective = std::make_shared<ompl::base::MinimaxObjective>(ompl_simple_setup_->getSpaceInformation());
+      }
+      else if (optimizer == "StateCostIntegralObjective")
+      {
+        objective = std::make_shared<ompl::base::StateCostIntegralObjective>(ompl_simple_setup_->getSpaceInformation());
+      }
+      else if (optimizer == "MechanicalWorkOptimizationObjective")
+      {
+        objective = std::make_shared<ompl::base::MechanicalWorkOptimizationObjective>(
+            ompl_simple_setup_->getSpaceInformation());
+      }
+      else if (optimizer == "MaximizeMinClearanceObjective")
+      {
+        objective =
+            std::make_shared<ompl::base::MaximizeMinClearanceObjective>(ompl_simple_setup_->getSpaceInformation());
+      }
+      else
+      {
+        objective =
+            std::make_shared<ompl::base::PathLengthOptimizationObjective>(ompl_simple_setup_->getSpaceInformation());
+      }
 
-    ompl_simple_setup_->setOptimizationObjective(objective);
+      ompl_simple_setup_->setOptimizationObjective(objective);
+    }
+  }
+
+  if (state_cost_function_ != nullptr)
+  {
+    if (it != cfg.end())
+    {
+      RCLCPP_WARN(LOGGER, "%s: User defined optimization function will overwrite OMPL config", name_.c_str());
+    }
   }
 
   // Don't clear planner data if multi-query planning is enabled

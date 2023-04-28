@@ -18,6 +18,7 @@ add_library(moveit_ompl_interface SHARED
   src/detail/constraints_library.cpp
   src/detail/constrained_sampler.cpp
   src/detail/constrained_goal_sampler.cpp
+  src/detail/planning_interface_objective.cpp
 )
 set_target_properties(moveit_ompl_interface PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
 
