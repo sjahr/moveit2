@@ -44,6 +44,7 @@
 #include <moveit/ompl_interface/detail/constrained_sampler.h>
 #include <moveit/ompl_interface/detail/constrained_goal_sampler.h>
 #include <moveit/ompl_interface/detail/goal_union.h>
+#include <moveit/ompl_interface/detail/planning_interface_objective.hpp>
 #include <moveit/ompl_interface/detail/projection_evaluators.h>
 #include <moveit/ompl_interface/detail/constraints_library.h>
 
@@ -101,7 +102,9 @@ ompl_interface::ModelBasedPlanningContext::ModelBasedPlanningContext(const std::
 }
 
 void ompl_interface::ModelBasedPlanningContext::configure(const rclcpp::Node::SharedPtr& node,
-                                                          bool use_constraints_approximations)
+                                                          bool use_constraints_approximations,
+                                                          const planning_scene::PlanningSceneConstPtr& planning_scene,
+                                                          const moveit_msgs::msg::MotionPlanRequest& req)
 {
   loadConstraintApproximations(node);
   if (!use_constraints_approximations)
@@ -141,7 +144,7 @@ void ompl_interface::ModelBasedPlanningContext::configure(const rclcpp::Node::Sh
     }
   }
 
-  useConfig();
+  useConfig(planning_scene, req);
   if (ompl_simple_setup_->getGoal())
     ompl_simple_setup_->setup();
 }
@@ -278,7 +281,8 @@ ompl_interface::ModelBasedPlanningContext::allocPathConstrainedSampler(const omp
   return state_space->allocDefaultStateSampler();
 }
 
-void ompl_interface::ModelBasedPlanningContext::useConfig()
+void ompl_interface::ModelBasedPlanningContext::useConfig(const planning_scene::PlanningSceneConstPtr& planning_scene,
+                                                          const moveit_msgs::msg::MotionPlanRequest& req)
 {
   const std::map<std::string, std::string>& config = spec_.config_;
   if (config.empty())
@@ -374,10 +378,8 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
 
   if (state_cost_function_ != nullptr)
   {
-    if (it != cfg.end())
-    {
-      RCLCPP_WARN(LOGGER, "%s: User defined optimization function will overwrite OMPL config", name_.c_str());
-    }
+    objective = std::make_shared<ompl_interface::PlanningInterfaceObjective>(ompl_simple_setup_->getSpaceInformation(),
+                                                                             planning_scene, req, state_cost_function_);
   }
 
   // Don't clear planner data if multi-query planning is enabled

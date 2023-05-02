@@ -342,7 +342,9 @@ public:
    * \param node ROS node used to load the constraint approximations.
    * \param use_constraints_approximations Set to true if we want to load the constraint approximation.
    * */
-  virtual void configure(const rclcpp::Node::SharedPtr& node, bool use_constraints_approximations);
+  virtual void configure(const rclcpp::Node::SharedPtr& node, bool use_constraints_approximations,
+                         const planning_scene::PlanningSceneConstPtr& planning_scene,
+                         const moveit_msgs::msg::MotionPlanRequest& req);
 
 protected:
   void preSolve();
@@ -353,7 +355,8 @@ protected:
 
   virtual ob::ProjectionEvaluatorPtr getProjectionEvaluator(const std::string& peval) const;
   virtual ob::StateSamplerPtr allocPathConstrainedSampler(const ompl::base::StateSpace* ss) const;
-  virtual void useConfig();
+  virtual void useConfig(const planning_scene::PlanningSceneConstPtr& planning_scene,
+                         const moveit_msgs::msg::MotionPlanRequest& req);
   virtual ob::GoalPtr constructGoal();
 
   /* @brief Construct a planner termination condition, by default a simple time limit
