@@ -40,6 +40,7 @@
 #include <moveit/planning_pipeline_interfaces/plan_responses_container.hpp>
 #include <moveit/planning_interface/planning_response.h>
 #include <moveit/planning_interface/planning_request.h>
+#include <moveit/planning_interface/planning_interface.h>
 #include <moveit/planning_pipeline/planning_pipeline.h>
 #include <moveit/planning_scene/planning_scene.h>
 
@@ -73,7 +74,8 @@ typedef std::function<::planning_interface::MotionPlanResponse(
 ::planning_interface::MotionPlanResponse planWithSinglePipeline(
     const ::planning_interface::MotionPlanRequest& motion_plan_request,
     const ::planning_scene::PlanningSceneConstPtr& planning_scene,
-    const std::unordered_map<std::string, planning_pipeline::PlanningPipelinePtr>& planning_pipelines);
+    const std::unordered_map<std::string, planning_pipeline::PlanningPipelinePtr>& planning_pipelines,
+    const ::planning_interface::StateCostFn& state_cost_function = ::planning_interface::StateCostFn());
 
 /** \brief Function to solve multiple planning problems in parallel threads with multiple planning pipelines at the same
  time

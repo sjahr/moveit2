@@ -141,8 +141,8 @@ planning_interface::MotionPlanResponse PlanningComponent::plan(const PlanRequest
   planning_scene->setCurrentState(request.start_state);
 
   // Run planning attempt
-  return moveit::planning_pipeline_interfaces::planWithSinglePipeline(request, planning_scene,
-                                                                      moveit_cpp_->getPlanningPipelines());
+  return moveit::planning_pipeline_interfaces::planWithSinglePipeline(
+      request, planning_scene, moveit_cpp_->getPlanningPipelines(), state_cost_function_);
 }
 
 planning_interface::MotionPlanResponse PlanningComponent::plan(

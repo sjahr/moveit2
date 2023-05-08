@@ -40,7 +40,7 @@ namespace moveit
 {
 namespace cost_functions
 {
-[[nodiscard]] planning_interface::StateCostFn getClearanceCostFn()
+[[nodiscard]] ::planning_interface::StateCostFn getClearanceCostFn()
 {
   // Create cost function
   return [](const moveit::core::RobotState& robot_state, const planning_interface::MotionPlanRequest& request,
@@ -57,8 +57,8 @@ namespace cost_functions
   };
 }
 
-[[nodiscard]] planning_interface::StateCostFn
-getWeightedCostFnSum(std::vector<std::pair<double, planning_interface::StateCostFn>> weight_cost_vector)
+[[nodiscard]] ::planning_interface::StateCostFn
+getWeightedCostFnSum(std::vector<std::pair<double, ::planning_interface::StateCostFn>> weight_cost_vector)
 {
   return [weight_cost_vector](const moveit::core::RobotState& robot_state,
                               const planning_interface::MotionPlanRequest& request,

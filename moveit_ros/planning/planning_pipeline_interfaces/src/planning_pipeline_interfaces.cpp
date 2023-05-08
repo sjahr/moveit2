@@ -47,7 +47,8 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit.::planning_inter
 ::planning_interface::MotionPlanResponse
 planWithSinglePipeline(const ::planning_interface::MotionPlanRequest& motion_plan_request,
                        const ::planning_scene::PlanningSceneConstPtr& planning_scene,
-                       const std::unordered_map<std::string, planning_pipeline::PlanningPipelinePtr>& planning_pipelines)
+                       const std::unordered_map<std::string, planning_pipeline::PlanningPipelinePtr>& planning_pipelines,
+                       const ::planning_interface::StateCostFn& state_cost_function)
 {
   ::planning_interface::MotionPlanResponse motion_plan_response;
   auto it = planning_pipelines.find(motion_plan_request.pipeline_id);
@@ -58,7 +59,7 @@ planWithSinglePipeline(const ::planning_interface::MotionPlanRequest& motion_pla
     return motion_plan_response;
   }
   const planning_pipeline::PlanningPipelinePtr pipeline = it->second;
-  pipeline->generatePlan(planning_scene, motion_plan_request, motion_plan_response);
+  pipeline->generatePlan(planning_scene, motion_plan_request, motion_plan_response, state_cost_function);
   return motion_plan_response;
 }
 

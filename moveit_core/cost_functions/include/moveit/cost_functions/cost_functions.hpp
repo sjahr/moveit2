@@ -45,9 +45,9 @@ namespace moveit
 {
 namespace cost_functions
 {
-[[nodiscard]] planning_interface::StateCostFn getClearanceCostFn();
+[[nodiscard]] ::planning_interface::StateCostFn getClearanceCostFn();
 
-[[nodiscard]] planning_interface::StateCostFn
-getWeightedCostFnSum(std::vector<std::pair<double, planning_interface::StateCostFn>> weight_cost_vector);
+[[nodiscard]] ::planning_interface::StateCostFn
+getWeightedCostFnSum(std::vector<std::pair<double, ::planning_interface::StateCostFn>> weight_cost_vector);
 }  // namespace cost_functions
 }  // namespace moveit

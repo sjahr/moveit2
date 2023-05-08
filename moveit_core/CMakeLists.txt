@@ -117,6 +117,7 @@ install(
     moveit_collision_detection_fcl
     moveit_collision_distance_field
     moveit_constraint_samplers
+    moveit_cost_functions
     moveit_distance_field
     moveit_dynamics_solver
     moveit_exceptions
