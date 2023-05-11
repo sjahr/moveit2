@@ -45,14 +45,22 @@ namespace cost_functions
   // Create cost function
   return [](const moveit::core::RobotState& robot_state, const planning_interface::MotionPlanRequest& request,
             const planning_scene::PlanningSceneConstPtr& planning_scene) {
+
+  std::vector<double> joint_pos;
+  robot_state.copyJointGroupPositions(request.group_name, joint_pos);
+  for(auto const val : joint_pos){
+    std::cout << "Joint pos: " << val << std::endl;
+  }
     auto const shortest_distance_to_collision = planning_scene->distanceToCollisionUnpadded(robot_state);
 
     // Return cost based on shortest_distance if the robot is not in contact or penetrated a collision object
     if (shortest_distance_to_collision > 0.0)
     {
+      std::cout << "Cost: " << 1.0/ shortest_distance_to_collision << std::endl;
       // The closer the collision object the higher the cost
       return 1.0 / shortest_distance_to_collision;
     }
+    std::cout << "Cost: " <<  std::numeric_limits<double>::infinity() << std::endl;
     return std::numeric_limits<double>::infinity();  // Return a max cost cost by default
   };
 }
