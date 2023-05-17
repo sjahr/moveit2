@@ -75,8 +75,7 @@ struct PlannerConfigurationSettings
 /** \brief Map from PlannerConfigurationSettings.name to PlannerConfigurationSettings */
 typedef std::map<std::string, PlannerConfigurationSettings> PlannerConfigurationMap;
 
-using StateCostFn = std::function<double(const moveit::core::RobotState& robot_state, const MotionPlanRequest& request,
-                                         const planning_scene::PlanningSceneConstPtr& planning_scene)>;
+using StateCostFn = std::function<double(const std::vector_double& state_vector)>;
 
 MOVEIT_CLASS_FORWARD(PlanningContext);  // Defines PlanningContextPtr, ConstPtr, WeakPtr... etc
 
