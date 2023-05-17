@@ -49,8 +49,6 @@ class PlanningInterfaceObjective : public ompl::base::OptimizationObjective
 {
 public:
   PlanningInterfaceObjective(const ompl::base::SpaceInformationPtr& si,
-                             const planning_scene::PlanningSceneConstPtr& planning_scene,
-                             const planning_interface::MotionPlanRequest& request,
                              const planning_interface::StateCostFn& state_cost_function);
 
   /** \brief Returns for a state calculated with the state_cost_function */
@@ -81,8 +79,6 @@ public:
   ompl::base::Cost motionCostBestEstimate(const ompl::base::State* state_1, const ompl::base::State* state_2) const;
 
 protected:
-  const planning_scene::PlanningSceneConstPtr planning_scene_;
-  const planning_interface::MotionPlanRequest request_;
   const planning_interface::StateCostFn state_cost_function_;
 
   /** \brief Adapted from ompl::base::StateCostIntegralObjective: Helper method which uses the trapezoidal rule

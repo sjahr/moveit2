@@ -40,23 +40,28 @@
 namespace ompl_interface
 {
 PlanningInterfaceObjective::PlanningInterfaceObjective(const ompl::base::SpaceInformationPtr& si,
-                                                       const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                       const planning_interface::MotionPlanRequest& request,
                                                        const planning_interface::StateCostFn& state_cost_function)
-  : OptimizationObjective(si)
-  , planning_scene_(planning_scene)
-  , request_(request)
-  , state_cost_function_(state_cost_function)
+  : OptimizationObjective(si), state_cost_function_(state_cost_function)
 {
   description_ = "Planning Interface Objective";
 }
 
 ompl::base::Cost PlanningInterfaceObjective::stateCost(const ompl::base::State* state_ptr) const
 {
-  auto robot_state = moveit::core::RobotState(planning_scene_->getRobotModel());
-  robot_state.setJointGroupPositions(request_.group_name,
-                                     state_ptr->as<ompl_interface::ModelBasedStateSpace::StateType>()->values);
-  return ompl::base::Cost(state_cost_function_(robot_state, request_, planning_scene_));
+  if (!state_cost_function_)
+  {
+    // TODO(sjahr): Print warning or move check else where
+    return ompl::base::Cost(1.0);
+  }
+  std::vector<double> state_vector;
+  state_vector.resize(si_->getStateDimension());
+  // Update state vector
+  auto space_values = state_ptr->as<ompl_interface::ModelBasedStateSpace::StateType>()->values;
+  for (std::size_t i = 0; i < si_->getStateDimension(); ++i)
+  {
+    state_vector[i] = space_values[i];
+  }
+  return ompl::base::Cost(state_cost_function_(state_vector));
 }
 
 ompl::base::Cost PlanningInterfaceObjective::motionCost(const ompl::base::State* state_1,
