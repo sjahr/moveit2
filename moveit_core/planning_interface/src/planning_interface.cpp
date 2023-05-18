@@ -84,6 +84,11 @@ void PlanningContext::setStateCostFunction(const StateCostFn& state_cost_functio
   state_cost_function_ = state_cost_function;
 }
 
+const StateCostFn& PlanningContext::getStateCostFunction() const
+{
+  return state_cost_function_;
+}
+
 void PlanningContext::setMotionPlanRequest(const MotionPlanRequest& request)
 {
   request_ = request;

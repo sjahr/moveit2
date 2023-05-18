@@ -122,6 +122,8 @@ public:
   /** \brief Set the planning request for this context */
   void setStateCostFunction(const StateCostFn& state_cost_function);
 
+  [[nodiscard]] const StateCostFn& getStateCostFunction() const;
+
   /** \brief Solve the motion planning problem and store the result in \e res. This function should not clear data
    * structures before computing. The constructor and clear() do that. */
   virtual bool solve(MotionPlanResponse& res) = 0;

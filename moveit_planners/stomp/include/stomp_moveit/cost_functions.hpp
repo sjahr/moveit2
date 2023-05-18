@@ -41,6 +41,7 @@
 
 #include <Eigen/Geometry>
 
+#include <moveit/planning_interface/planning_interface.h>
 #include <moveit/planning_scene/planning_scene.h>
 #include <moveit/kinematic_constraints/kinematic_constraint.h>
 
@@ -219,6 +220,28 @@ CostFn get_constraints_cost_function(const std::shared_ptr<const planning_scene:
 
   return get_cost_function_from_state_validator(constraints_validator_fn, CONSTRAINT_CHECK_DISTANCE,
                                                 constraints_penalty);
+}
+
+/**
+ * Creates a STOMP cost function from
+ *
+ * @param state_cost_function      The planning scene instance to use for computing transforms
+ *
+ * @return                    STOMP Cost function based on MoveIt state cost function
+ */
+CostFn get_cost_function_from_moveit_state_cost_fn(const ::planning_interface::StateCostFn& state_cost_function)
+{
+  CostFn cost_fn = [&](const Eigen::MatrixXd& values, Eigen::VectorXd& costs, bool& validity) {
+    validity = true;  // TODO(sjahr): Discuss if that is always the case
+    for (int timestep = 0; timestep < values.cols() - 1; ++timestep)
+    {
+      Eigen::VectorXd current_state_vector = values.col(timestep);
+      costs(timestep) = state_cost_function(
+          std::vector<double>(current_state_vector.data(), current_state_vector.data() + current_state_vector.size()));
+    }
+    return true;
+  };
+  return cost_fn;
 }
 
 /**
