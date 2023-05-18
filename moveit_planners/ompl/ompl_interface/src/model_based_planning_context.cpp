@@ -102,9 +102,7 @@ ompl_interface::ModelBasedPlanningContext::ModelBasedPlanningContext(const std::
 }
 
 void ompl_interface::ModelBasedPlanningContext::configure(const rclcpp::Node::SharedPtr& node,
-                                                          bool use_constraints_approximations,
-                                                          const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                          const moveit_msgs::msg::MotionPlanRequest& req)
+                                                          bool use_constraints_approximations)
 {
   loadConstraintApproximations(node);
   if (!use_constraints_approximations)

@@ -342,9 +342,7 @@ public:
    * \param node ROS node used to load the constraint approximations.
    * \param use_constraints_approximations Set to true if we want to load the constraint approximation.
    * */
-  virtual void configure(const rclcpp::Node::SharedPtr& node, bool use_constraints_approximations,
-                         const planning_scene::PlanningSceneConstPtr& planning_scene,
-                         const moveit_msgs::msg::MotionPlanRequest& req);
+  virtual void configure(const rclcpp::Node::SharedPtr& node, bool use_constraints_approximations);
 
 protected:
   void preSolve();
