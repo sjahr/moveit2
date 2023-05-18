@@ -355,8 +355,7 @@ protected:
 
   virtual ob::ProjectionEvaluatorPtr getProjectionEvaluator(const std::string& peval) const;
   virtual ob::StateSamplerPtr allocPathConstrainedSampler(const ompl::base::StateSpace* ss) const;
-  virtual void useConfig(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                         const moveit_msgs::msg::MotionPlanRequest& req);
+  virtual void useConfig();
   virtual ob::GoalPtr constructGoal();
 
   /* @brief Construct a planner termination condition, by default a simple time limit

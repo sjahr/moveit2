@@ -144,7 +144,7 @@ void ompl_interface::ModelBasedPlanningContext::configure(const rclcpp::Node::Sh
     }
   }
 
-  useConfig(planning_scene, req);
+  useConfig();
   if (ompl_simple_setup_->getGoal())
     ompl_simple_setup_->setup();
 }
@@ -281,8 +281,7 @@ ompl_interface::ModelBasedPlanningContext::allocPathConstrainedSampler(const omp
   return state_space->allocDefaultStateSampler();
 }
 
-void ompl_interface::ModelBasedPlanningContext::useConfig(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                          const moveit_msgs::msg::MotionPlanRequest& req)
+void ompl_interface::ModelBasedPlanningContext::useConfig()
 {
   const std::map<std::string, std::string>& config = spec_.config_;
   if (config.empty())
@@ -378,9 +377,10 @@ void ompl_interface::ModelBasedPlanningContext::useConfig(const planning_scene::
 
   if (state_cost_function_ != nullptr)
   {
-    RCLCPP_WARN(LOGGER, "%s: Use user defined optimization function!", name_.c_str());
-    objective = std::make_shared<ompl_interface::PlanningInterfaceObjective>(ompl_simple_setup_->getSpaceInformation(),
-                                                                             state_cost_function_);
+    objective = std::make_shared<ompl::base::MaximizeMinClearanceObjective>(ompl_simple_setup_->getSpaceInformation());
+    // RCLCPP_WARN(LOGGER, "%s: Use user defined optimization function!", name_.c_str());
+    // objective = std::make_shared<ompl_interface::PlanningInterfaceObjective>(ompl_simple_setup_->getSpaceInformation(),
+    //                                                                          state_cost_function_);
     ompl_simple_setup_->setOptimizationObjective(objective);
   }
 
