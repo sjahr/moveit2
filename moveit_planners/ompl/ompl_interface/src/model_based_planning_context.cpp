@@ -375,10 +375,9 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
 
   if (state_cost_function_ != nullptr)
   {
-    objective = std::make_shared<ompl::base::MaximizeMinClearanceObjective>(ompl_simple_setup_->getSpaceInformation());
-    // RCLCPP_WARN(LOGGER, "%s: Use user defined optimization function!", name_.c_str());
-    // objective = std::make_shared<ompl_interface::PlanningInterfaceObjective>(ompl_simple_setup_->getSpaceInformation(),
-    //                                                                          state_cost_function_);
+    RCLCPP_WARN(LOGGER, "%s: Use user defined optimization function!", name_.c_str());
+    objective = std::make_shared<ompl_interface::PlanningInterfaceObjective>(ompl_simple_setup_->getSpaceInformation(),
+                                                                             state_cost_function_);
     ompl_simple_setup_->setOptimizationObjective(objective);
   }
 

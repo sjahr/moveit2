@@ -590,7 +590,7 @@ ModelBasedPlanningContextPtr PlanningContextManager::getPlanningContext(
 
     try
     {
-      context->configure(node, use_constraints_approximation, planning_scene, req);
+      context->configure(node, use_constraints_approximation);
       RCLCPP_DEBUG(LOGGER, "%s: New planning context is set.", context->getName().c_str());
       error_code.val = moveit_msgs::msg::MoveItErrorCodes::SUCCESS;
     }
