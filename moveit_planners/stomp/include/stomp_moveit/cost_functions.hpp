@@ -236,8 +236,7 @@ CostFn get_cost_function_from_moveit_state_cost_fn(const ::planning_interface::S
     for (int timestep = 0; timestep < values.cols() - 1; ++timestep)
     {
       Eigen::VectorXd current_state_vector = values.col(timestep);
-      costs(timestep) = state_cost_function(
-          std::vector<double>(current_state_vector.data(), current_state_vector.data() + current_state_vector.size()));
+      costs(timestep) = state_cost_function(current_state_vector);
     }
     return true;
   };

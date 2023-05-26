@@ -45,7 +45,7 @@ getClearanceCostFn(moveit::core::RobotState& robot_state, const std::string& gro
                    const planning_scene::PlanningSceneConstPtr& planning_scene)
 {
   // Create cost function
-  return [robot_state, group_name, planning_scene](const std::vector<double>& state_vector) mutable {
+  return [robot_state, group_name, planning_scene](const Eigen::VectorXd& state_vector) mutable {
     robot_state.setJointGroupActivePositions(group_name, state_vector);
     auto const shortest_distance_to_collision = planning_scene->distanceToCollisionUnpadded(robot_state);
 

@@ -53,13 +53,13 @@ ompl::base::Cost PlanningInterfaceObjective::stateCost(const ompl::base::State* 
     // TODO(sjahr): Print warning or move check else where
     return ompl::base::Cost(1.0);
   }
-  std::vector<double> state_vector;
+  Eigen::VectorXd state_vector;
   state_vector.resize(si_->getStateDimension());
   // Update state vector
   auto space_values = state_ptr->as<ompl_interface::ModelBasedStateSpace::StateType>()->values;
   for (std::size_t i = 0; i < si_->getStateDimension(); ++i)
   {
-    state_vector[i] = space_values[i];
+    state_vector(i) = space_values[i];
   }
   return ompl::base::Cost(state_cost_function_(state_vector));
 }
