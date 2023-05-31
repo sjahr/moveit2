@@ -85,25 +85,25 @@ public:
     // STOMP reads the seed trajectory from trajectory constraints so we need to convert the waypoints first
     const size_t seed_waypoint_count = res.trajectory->getWayPointCount();
     const std::vector<std::string> joint_names =
-        res.trajectory->getFirstWayPoint().getJointModelGroup(req.group_name)->getActiveJointModelNames();
+        res.trajectory->getFirstWayPoint().getJointModelGroup(req.data.group_name)->getActiveJointModelNames();
     const size_t joint_count = joint_names.size();
     planning_interface::MotionPlanRequest seed_req = req;
-    seed_req.trajectory_constraints.constraints.clear();
-    seed_req.trajectory_constraints.constraints.resize(seed_waypoint_count);
+    seed_req.data.trajectory_constraints.constraints.clear();
+    seed_req.data.trajectory_constraints.constraints.resize(seed_waypoint_count);
     for (size_t i = 0; i < seed_waypoint_count; ++i)
     {
-      seed_req.trajectory_constraints.constraints[i].joint_constraints.resize(joint_count);
+      seed_req.data.trajectory_constraints.constraints[i].joint_constraints.resize(joint_count);
       for (size_t j = 0; j < joint_count; ++j)
       {
-        seed_req.trajectory_constraints.constraints[i].joint_constraints[j].joint_name = joint_names[j];
-        seed_req.trajectory_constraints.constraints[i].joint_constraints[j].position =
+        seed_req.data.trajectory_constraints.constraints[i].joint_constraints[j].joint_name = joint_names[j];
+        seed_req.data.trajectory_constraints.constraints[i].joint_constraints[j].position =
             res.trajectory->getWayPoint(i).getVariablePosition(joint_names[j]);
       }
     }
 
     // Initialize STOMP Planner
     PlanningContextPtr planning_context =
-        std::make_shared<StompPlanningContext>("STOMP", req.group_name, param_listener_->get_params());
+        std::make_shared<StompPlanningContext>("STOMP", req.data.group_name, param_listener_->get_params());
     planning_context->clear();
     planning_context->setPlanningScene(ps);
     planning_context->setMotionPlanRequest(seed_req);

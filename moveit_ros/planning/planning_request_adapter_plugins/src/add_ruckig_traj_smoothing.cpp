@@ -68,8 +68,8 @@ public:
     bool result = planner(planning_scene, req, res, state_cost_function);
     if (result && res.trajectory)
     {
-      if (!smoother_.applySmoothing(*res.trajectory, req.max_velocity_scaling_factor,
-                                    req.max_acceleration_scaling_factor))
+      if (!smoother_.applySmoothing(*res.trajectory, req.data.max_velocity_scaling_factor,
+                                    req.data.max_acceleration_scaling_factor))
       {
         result = false;
       }

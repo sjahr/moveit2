@@ -92,18 +92,18 @@ const StateCostFn& PlanningContext::getStateCostFunction() const
 void PlanningContext::setMotionPlanRequest(const MotionPlanRequest& request)
 {
   request_ = request;
-  if (request_.allowed_planning_time <= 0.0)
+  if (request_.data.allowed_planning_time <= 0.0)
   {
     RCLCPP_INFO(LOGGER, "The timeout for planning must be positive (%lf specified). Assuming one second instead.",
-                request_.allowed_planning_time);
-    request_.allowed_planning_time = 1.0;
+                request_.data.allowed_planning_time);
+    request_.data.allowed_planning_time = 1.0;
   }
-  if (request_.num_planning_attempts < 0)
+  if (request_.data.num_planning_attempts < 0)
   {
     RCLCPP_ERROR(LOGGER, "The number of desired planning attempts should be positive. "
                          "Assuming one attempt.");
   }
-  request_.num_planning_attempts = std::max(1, request_.num_planning_attempts);
+  request_.data.num_planning_attempts = std::max(1, request_.data.num_planning_attempts);
 }
 
 bool PlannerManager::initialize(const moveit::core::RobotModelConstPtr& /*unused*/,

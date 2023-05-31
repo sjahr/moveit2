@@ -148,8 +148,9 @@ void MoveGroupMoveAction::executeMoveCallbackPlanAndExecute(const std::shared_pt
   plan_execution::PlanExecution::Options opt;
 
   const moveit_msgs::msg::MotionPlanRequest& motion_plan_request =
-      moveit::core::isEmpty(goal->get_goal()->request.start_state) ? goal->get_goal()->request :
-                                                                     clearRequestStartState(goal->get_goal()->request);
+      moveit::core::isEmpty(goal->get_goal()->request.start_state) ?
+          goal->get_goal()->request :
+          clearRequestStartState(goal->get_goal()->request).data;
   const moveit_msgs::msg::PlanningScene& planning_scene_diff =
       moveit::core::isEmpty(goal->get_goal()->planning_options.planning_scene_diff.robot_state) ?
           goal->get_goal()->planning_options.planning_scene_diff :
@@ -233,7 +234,7 @@ bool MoveGroupMoveAction::planUsingPlanningPipeline(const planning_interface::Mo
   planning_interface::MotionPlanResponse res;
 
   // Select planning_pipeline to handle request
-  const planning_pipeline::PlanningPipelinePtr planning_pipeline = resolvePlanningPipeline(req.pipeline_id);
+  const planning_pipeline::PlanningPipelinePtr planning_pipeline = resolvePlanningPipeline(req.data.pipeline_id);
   if (!planning_pipeline)
   {
     res.error_code.val = moveit_msgs::msg::MoveItErrorCodes::FAILURE;

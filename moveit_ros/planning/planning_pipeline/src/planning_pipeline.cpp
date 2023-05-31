@@ -259,7 +259,7 @@ bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::Pla
   // broadcast the request we are about to work on, if needed
   if (publish_received_requests_)
   {
-    received_request_publisher_->publish(req);
+    received_request_publisher_->publish(req.data);
   }
   adapter_added_state_index.clear();
 
@@ -316,7 +316,7 @@ bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::Pla
       arr.markers.push_back(m);
 
       std::vector<std::size_t> index;
-      if (!planning_scene->isPathValid(*res.trajectory, req.path_constraints, req.group_name, false, &index))
+      if (!planning_scene->isPathValid(*res.trajectory, req.data.path_constraints, req.data.group_name, false, &index))
       {
         // check to see if there is any problem with the states that are found to be invalid
         // they are considered ok if they were added by a planning request adapter
@@ -361,7 +361,7 @@ bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::Pla
             {
               // check validity with verbose on
               const moveit::core::RobotState& robot_state = res.trajectory->getWayPoint(it);
-              planning_scene->isStateValid(robot_state, req.path_constraints, req.group_name, true);
+              planning_scene->isStateValid(robot_state, req.data.path_constraints, req.data.group_name, true);
 
               // compute the contacts if any
               collision_detection::CollisionRequest c_req;
@@ -411,9 +411,10 @@ bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::Pla
     // This should alert the user if planning failed because of contradicting constraints.
     // Could be checked more thoroughly, but it is probably not worth going to that length.
     bool stacked_constraints = false;
-    if (req.path_constraints.position_constraints.size() > 1 || req.path_constraints.orientation_constraints.size() > 1)
+    if (req.data.path_constraints.position_constraints.size() > 1 ||
+        req.data.path_constraints.orientation_constraints.size() > 1)
       stacked_constraints = true;
-    for (const auto& constraint : req.goal_constraints)
+    for (const auto& constraint : req.data.goal_constraints)
     {
       if (constraint.position_constraints.size() > 1 || constraint.orientation_constraints.size() > 1)
         stacked_constraints = true;
@@ -430,7 +431,7 @@ bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::Pla
   // Make sure that planner id is set
   if (res.planner_id.empty())
   {
-    res.planner_id = req.planner_id;
+    res.planner_id = req.data.planner_id;
   }
 
   // Set planning pipeline to inactive

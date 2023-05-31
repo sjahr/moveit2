@@ -97,13 +97,13 @@ void move_group::MoveGroupCapability::convertToMsg(const std::vector<plan_execut
 planning_interface::MotionPlanRequest
 move_group::MoveGroupCapability::clearRequestStartState(const planning_interface::MotionPlanRequest& request) const
 {
-  planning_interface::MotionPlanRequest r = request;
-  r.start_state = moveit_msgs::msg::RobotState();
-  r.start_state.is_diff = true;
+  planning_interface::MotionPlanRequest cleared_request = request;
+  cleared_request.data.start_state = moveit_msgs::msg::RobotState();
+  cleared_request.data.start_state.is_diff = true;
   RCLCPP_WARN(LOGGER,
               "Execution of motions should always start at the robot's current state. Ignoring the state supplied as "
               "start state in the motion planning request");
-  return r;
+  return cleared_request;
 }
 
 moveit_msgs::msg::PlanningScene

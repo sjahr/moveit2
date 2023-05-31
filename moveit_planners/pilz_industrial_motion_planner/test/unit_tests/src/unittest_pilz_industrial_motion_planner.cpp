@@ -154,7 +154,7 @@ TEST_F(CommandPlannerTest, CheckValidAlgorithmsForServiceRequest)
   for (const auto& alg : algs)
   {
     planning_interface::MotionPlanRequest req;
-    req.planner_id = alg;
+    req.data.planner_id = alg;
 
     EXPECT_TRUE(planner_instance_->canServiceRequest(req));
   }
@@ -167,7 +167,7 @@ TEST_F(CommandPlannerTest, CheckValidAlgorithmsForServiceRequest)
 TEST_F(CommandPlannerTest, CheckInvalidAlgorithmsForServiceRequest)
 {
   planning_interface::MotionPlanRequest req;
-  req.planner_id = "NON_EXISTEND_ALGORITHM_HASH_da39a3ee5e6b4b0d3255bfef95601890afd80709";
+  req.data.planner_id = "NON_EXISTEND_ALGORITHM_HASH_da39a3ee5e6b4b0d3255bfef95601890afd80709";
 
   EXPECT_FALSE(planner_instance_->canServiceRequest(req));
 }
@@ -178,7 +178,7 @@ TEST_F(CommandPlannerTest, CheckInvalidAlgorithmsForServiceRequest)
 TEST_F(CommandPlannerTest, CheckEmptyPlannerIdForServiceRequest)
 {
   planning_interface::MotionPlanRequest req;
-  req.planner_id = "";
+  req.data.planner_id = "";
 
   EXPECT_FALSE(planner_instance_->canServiceRequest(req));
 }

@@ -134,8 +134,8 @@ protected:
     EXPECT_TRUE(
         testutils::checkJointTrajectory(res_msg.trajectory.joint_trajectory, planner_limits_.getJointLimitContainer()));
 
-    EXPECT_EQ(req.path_constraints.position_constraints.size(), 1u);
-    EXPECT_EQ(req.path_constraints.position_constraints.at(0).constraint_region.primitive_poses.size(), 1u);
+    EXPECT_EQ(req.data.path_constraints.position_constraints.size(), 1u);
+    EXPECT_EQ(req.data.path_constraints.position_constraints.at(0).constraint_region.primitive_poses.size(), 1u);
 
     // Check that all point have the equal distance to the center
     Eigen::Vector3d circ_center;
@@ -164,15 +164,15 @@ protected:
   void getCircCenter(const planning_interface::MotionPlanRequest& req,
                      const planning_interface::MotionPlanResponse& res, Eigen::Vector3d& circ_center)
   {
-    if (req.path_constraints.name == "center")
+    if (req.data.path_constraints.name == "center")
     {
-      tf2::fromMsg(req.path_constraints.position_constraints.at(0).constraint_region.primitive_poses.at(0).position,
+      tf2::fromMsg(req.data.path_constraints.position_constraints.at(0).constraint_region.primitive_poses.at(0).position,
                    circ_center);
     }
-    else if (req.path_constraints.name == "interim")
+    else if (req.data.path_constraints.name == "interim")
     {
       Eigen::Vector3d interim;
-      tf2::fromMsg(req.path_constraints.position_constraints.at(0).constraint_region.primitive_poses.at(0).position,
+      tf2::fromMsg(req.data.path_constraints.position_constraints.at(0).constraint_region.primitive_poses.at(0).position,
                    interim);
       Eigen::Vector3d start = res.trajectory->getFirstWayPointPtr()->getFrameTransform(target_link_).translation();
       Eigen::Vector3d goal = res.trajectory->getLastWayPointPtr()->getFrameTransform(target_link_).translation();
@@ -278,9 +278,9 @@ TEST_F(TrajectoryGeneratorCIRCTest, incompleteStartState)
   auto circ{ tdp_->getCircCartCenterCart("circ1_center_2") };
 
   planning_interface::MotionPlanRequest req{ circ.toRequest() };
-  EXPECT_GT(req.start_state.joint_state.name.size(), 1u);
-  req.start_state.joint_state.name.resize(1);
-  req.start_state.joint_state.position.resize(1);  // prevent failing check for equal sizes
+  EXPECT_GT(req.data.start_state.joint_state.name.size(), 1u);
+  req.data.start_state.joint_state.name.resize(1);
+  req.data.start_state.joint_state.position.resize(1);  // prevent failing check for equal sizes
 
   planning_interface::MotionPlanResponse res;
   EXPECT_FALSE(circ_->generate(planning_scene_, req, res));
@@ -292,7 +292,7 @@ TEST_F(TrajectoryGeneratorCIRCTest, incompleteStartState)
  */
 TEST_F(TrajectoryGeneratorCIRCTest, nonZeroStartVelocity)
 {
-  moveit_msgs::msg::MotionPlanRequest req{ tdp_->getCircJointCenterCart("circ1_center_2").toRequest() };
+  moveit_msgs::msg::MotionPlanRequest req{ tdp_->getCircJointCenterCart("circ1_center_2").toRequest().data };
 
   // start state has non-zero velocity
   req.start_state.joint_state.velocity.push_back(1.0);
@@ -391,7 +391,7 @@ TEST_F(TrajectoryGeneratorCIRCTest, emptyAux)
 
   planning_interface::MotionPlanRequest req = circ.toRequest();
 
-  req.path_constraints.position_constraints.clear();
+  req.data.path_constraints.position_constraints.clear();
 
   planning_interface::MotionPlanResponse res;
   EXPECT_FALSE(circ_->generate(planning_scene_, req, res));
@@ -407,7 +407,7 @@ TEST_F(TrajectoryGeneratorCIRCTest, invalidAuxName)
 
   planning_interface::MotionPlanRequest req = circ.toRequest();
 
-  req.path_constraints.name = "";
+  req.data.path_constraints.name = "";
 
   planning_interface::MotionPlanResponse res;
   EXPECT_FALSE(circ_->generate(planning_scene_, req, res));
@@ -424,7 +424,7 @@ TEST_F(TrajectoryGeneratorCIRCTest, invalidAuxLinkName)
 
   planning_interface::MotionPlanRequest req = circ.toRequest();
 
-  req.path_constraints.position_constraints.front().link_name = "INVALID";
+  req.data.path_constraints.position_constraints.front().link_name = "INVALID";
 
   planning_interface::MotionPlanResponse res;
   EXPECT_FALSE(circ_->generate(planning_scene_, req, res));
@@ -530,7 +530,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, colinearCenterAndInterim)
   circ.setAccelerationScale(0.05);
   circ.setVelocityScale(0.05);
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   planning_interface::MotionPlanResponse res;
   EXPECT_TRUE(circ_->generate(planning_scene_, req, res));
@@ -564,7 +565,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, interimLarger180Degree)
   circ.setAccelerationScale(0.05);
   circ.setVelocityScale(0.05);
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   planning_interface::MotionPlanResponse res;
   EXPECT_TRUE(circ_->generate(planning_scene_, req, res));
@@ -578,7 +580,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, interimLarger180Degree)
 TEST_F(TrajectoryGeneratorCIRCTest, centerPointJointGoal)
 {
   auto circ{ tdp_->getCircJointCenterCart("circ1_center_2") };
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   planning_interface::MotionPlanResponse res;
   ASSERT_TRUE(circ_->generate(planning_scene_, req, res));
@@ -595,7 +598,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, InvalidAdditionalPrimitivePose)
 {
   auto circ{ tdp_->getCircCartCenterCart("circ1_center_2") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   // Contains one pose (interim / center)
   ASSERT_EQ(req.path_constraints.position_constraints.back().constraint_region.primitive_poses.size(), 1u);
@@ -622,7 +626,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, InvalidExtraJointConstraint)
 {
   auto circ{ tdp_->getCircJointCenterCart("circ1_center_2") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   // Define the additional joint constraint
   moveit_msgs::msg::JointConstraint joint_constraint;
@@ -641,7 +646,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, CenterPointPoseGoal)
 {
   auto circ{ tdp_->getCircCartCenterCart("circ1_center_2") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   planning_interface::MotionPlanResponse res;
   ASSERT_TRUE(circ_->generate(planning_scene_, req, res));
@@ -656,7 +662,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, CenterPointPoseGoalFrameIdPositionConstraint
 {
   auto circ{ tdp_->getCircCartCenterCart("circ1_center_2") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   req.goal_constraints.front().position_constraints.front().header.frame_id = robot_model_->getModelFrame();
 
@@ -673,7 +680,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, CenterPointPoseGoalFrameIdOrientationConstra
 {
   auto circ{ tdp_->getCircCartCenterCart("circ1_center_2") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
   req.goal_constraints.front().orientation_constraints.front().header.frame_id = robot_model_->getModelFrame();
 
   planning_interface::MotionPlanResponse res;
@@ -689,7 +697,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, CenterPointPoseGoalFrameIdBothConstraints)
 {
   auto circ{ tdp_->getCircCartCenterCart("circ1_center_2") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   // Both set
   req.goal_constraints.front().position_constraints.front().header.frame_id = robot_model_->getModelFrame();
@@ -708,7 +717,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, InterimPointJointGoal)
 {
   auto circ{ tdp_->getCircJointInterimCart("circ3_interim") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   planning_interface::MotionPlanResponse res;
   ASSERT_TRUE(circ_->generate(planning_scene_, req, res));
@@ -726,7 +736,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, InterimPointJointGoalStartVelNearZero)
 {
   auto circ{ tdp_->getCircJointInterimCart("circ3_interim") };
 
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   // Set velocity near zero
   req.start_state.joint_state.velocity = std::vector<double>(req.start_state.joint_state.position.size(), 1e-16);
@@ -743,7 +754,8 @@ TEST_F(TrajectoryGeneratorCIRCTest, InterimPointJointGoalStartVelNearZero)
 TEST_F(TrajectoryGeneratorCIRCTest, InterimPointPoseGoal)
 {
   auto circ{ tdp_->getCircJointInterimCart("circ3_interim") };
-  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest();
+  moveit_msgs::msg::MotionPlanRequest req = circ.toRequest().data;
+  ;
 
   planning_interface::MotionPlanResponse res;
   ASSERT_TRUE(circ_->generate(planning_scene_, req, res));

@@ -212,7 +212,7 @@ TEST_F(TrajectoryGeneratorLINTest, nonZeroStartVelocity)
   planning_interface::MotionPlanRequest req{ tdp_->getLinJoint("lin2").toRequest() };
 
   // add non-zero velocity in the start state
-  req.start_state.joint_state.velocity.push_back(1.0);
+  req.data.start_state.joint_state.velocity.push_back(1.0);
 
   // try to generate the result
   planning_interface::MotionPlanResponse res;
@@ -245,8 +245,8 @@ TEST_F(TrajectoryGeneratorLINTest, jointSpaceGoalNearZeroStartVelocity)
   planning_interface::MotionPlanRequest lin_joint_req{ tdp_->getLinJoint("lin2").toRequest() };
 
   // Set velocity near zero
-  lin_joint_req.start_state.joint_state.velocity =
-      std::vector<double>(lin_joint_req.start_state.joint_state.position.size(), 1e-16);
+  lin_joint_req.data.start_state.joint_state.velocity =
+      std::vector<double>(lin_joint_req.data.start_state.joint_state.position.size(), 1e-16);
 
   // generate the LIN trajectory
   planning_interface::MotionPlanResponse res;
@@ -263,7 +263,7 @@ TEST_F(TrajectoryGeneratorLINTest, jointSpaceGoalNearZeroStartVelocity)
 TEST_F(TrajectoryGeneratorLINTest, cartesianSpaceGoal)
 {
   // construct motion plan request
-  moveit_msgs::msg::MotionPlanRequest lin_cart_req{ tdp_->getLinCart("lin2").toRequest() };
+  moveit_msgs::msg::MotionPlanRequest lin_cart_req{ tdp_->getLinCart("lin2").toRequest().data };
 
   // generate lin trajectory
   planning_interface::MotionPlanResponse res;
@@ -285,7 +285,7 @@ TEST_F(TrajectoryGeneratorLINTest, cartesianSpaceGoal)
 TEST_F(TrajectoryGeneratorLINTest, cartesianTrapezoidProfile)
 {
   // construct motion plan request
-  moveit_msgs::msg::MotionPlanRequest lin_joint_req{ tdp_->getLinJoint("lin2").toRequest() };
+  moveit_msgs::msg::MotionPlanRequest lin_joint_req{ tdp_->getLinJoint("lin2").toRequest().data };
 
   /// +++++++++++++++++++++++
   /// + plan LIN trajectory +
@@ -364,7 +364,7 @@ TEST_F(TrajectoryGeneratorLINTest, LinPlannerDiscontinuousJointTraj)
 TEST_F(TrajectoryGeneratorLINTest, LinStartEqualsGoal)
 {
   // construct motion plan request
-  moveit_msgs::msg::MotionPlanRequest lin_joint_req{ tdp_->getLinJoint("lin2").toRequest() };
+  moveit_msgs::msg::MotionPlanRequest lin_joint_req{ tdp_->getLinJoint("lin2").toRequest().data };
 
   moveit::core::RobotState start_state(robot_model_);
   jointStateToRobotState(lin_joint_req.start_state.joint_state, start_state);
@@ -396,7 +396,7 @@ TEST_F(TrajectoryGeneratorLINTest, LinStartEqualsGoal)
 TEST_F(TrajectoryGeneratorLINTest, IncorrectJointNumber)
 {
   // construct motion plan request
-  moveit_msgs::msg::MotionPlanRequest lin_joint_req{ tdp_->getLinJoint("lin2").toRequest() };
+  moveit_msgs::msg::MotionPlanRequest lin_joint_req{ tdp_->getLinJoint("lin2").toRequest().data };
 
   // Ensure that request consists of an incorrect number of joints.
   lin_joint_req.goal_constraints.front().joint_constraints.pop_back();
@@ -414,7 +414,7 @@ TEST_F(TrajectoryGeneratorLINTest, IncorrectJointNumber)
 TEST_F(TrajectoryGeneratorLINTest, cartGoalIncompleteStartState)
 {
   // construct motion plan request
-  moveit_msgs::msg::MotionPlanRequest lin_cart_req{ tdp_->getLinCart("lin2").toRequest() };
+  moveit_msgs::msg::MotionPlanRequest lin_cart_req{ tdp_->getLinCart("lin2").toRequest().data };
   EXPECT_GT(lin_cart_req.start_state.joint_state.name.size(), 1u);
   lin_cart_req.start_state.joint_state.name.resize(1);
   lin_cart_req.start_state.joint_state.position.resize(1);  // prevent failing check for equal sizes
@@ -432,7 +432,7 @@ TEST_F(TrajectoryGeneratorLINTest, cartGoalIncompleteStartState)
 TEST_F(TrajectoryGeneratorLINTest, cartGoalFrameIdBothConstraints)
 {
   // construct motion plan request
-  moveit_msgs::msg::MotionPlanRequest lin_cart_req{ tdp_->getLinCart("lin2").toRequest() };
+  moveit_msgs::msg::MotionPlanRequest lin_cart_req{ tdp_->getLinCart("lin2").toRequest().data };
 
   lin_cart_req.goal_constraints.front().position_constraints.front().header.frame_id = robot_model_->getModelFrame();
   lin_cart_req.goal_constraints.front().orientation_constraints.front().header.frame_id = robot_model_->getModelFrame();

@@ -75,9 +75,6 @@ struct PlannerConfigurationSettings
 /** \brief Map from PlannerConfigurationSettings.name to PlannerConfigurationSettings */
 typedef std::map<std::string, PlannerConfigurationSettings> PlannerConfigurationMap;
 
-/** \brief Definition for a cost function to measure the cost of a single state during motion planning */
-using StateCostFn = std::function<double(const Eigen::VectorXd& state_vector)>;
-
 MOVEIT_CLASS_FORWARD(PlanningContext);  // Defines PlanningContextPtr, ConstPtr, WeakPtr... etc
 
 /** \brief Representation of a particular planning context -- the planning scene and the request are known,

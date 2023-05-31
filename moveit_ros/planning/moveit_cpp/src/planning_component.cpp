@@ -138,7 +138,7 @@ planning_interface::MotionPlanResponse PlanningComponent::plan(const PlanRequest
   ::planning_interface::MotionPlanRequest request = getMotionPlanRequest(parameters);
 
   // Set start state
-  planning_scene->setCurrentState(request.start_state);
+  planning_scene->setCurrentState(request.data.start_state);
 
   // Run planning attempt
   return moveit::planning_pipeline_interfaces::planWithSinglePipeline(
@@ -186,7 +186,7 @@ planning_interface::MotionPlanResponse PlanningComponent::plan(
   // Set start state
   for (const auto& request : requests)
   {
-    planning_scene->setCurrentState(request.start_state);
+    planning_scene->setCurrentState(request.data.start_state);
   }
 
   auto const motion_plan_response_vector = moveit::planning_pipeline_interfaces::planWithParallelPipelines(
@@ -323,20 +323,20 @@ bool PlanningComponent::setGoal(const std::string& goal_state_name)
 PlanningComponent::getMotionPlanRequest(const PlanRequestParameters& plan_request_parameters)
 {
   ::planning_interface::MotionPlanRequest request;
-  request.group_name = group_name_;
-  request.pipeline_id = plan_request_parameters.planning_pipeline;
-  request.planner_id = plan_request_parameters.planner_id;
-  request.num_planning_attempts = std::max(1, plan_request_parameters.planning_attempts);
-  request.allowed_planning_time = plan_request_parameters.planning_time;
-  request.max_velocity_scaling_factor = plan_request_parameters.max_velocity_scaling_factor;
-  request.max_acceleration_scaling_factor = plan_request_parameters.max_acceleration_scaling_factor;
+  request.data.group_name = group_name_;
+  request.data.pipeline_id = plan_request_parameters.planning_pipeline;
+  request.data.planner_id = plan_request_parameters.planner_id;
+  request.data.num_planning_attempts = std::max(1, plan_request_parameters.planning_attempts);
+  request.data.allowed_planning_time = plan_request_parameters.planning_time;
+  request.data.max_velocity_scaling_factor = plan_request_parameters.max_velocity_scaling_factor;
+  request.data.max_acceleration_scaling_factor = plan_request_parameters.max_acceleration_scaling_factor;
   if (workspace_parameters_set_)
   {
-    request.workspace_parameters = workspace_parameters_;
+    request.data.workspace_parameters = workspace_parameters_;
   }
-  request.goal_constraints = current_goal_constraints_;
-  request.path_constraints = current_path_constraints_;
-  request.trajectory_constraints = current_trajectory_constraints_;
+  request.data.goal_constraints = current_goal_constraints_;
+  request.data.path_constraints = current_path_constraints_;
+  request.data.trajectory_constraints = current_trajectory_constraints_;
 
   // Set start state
   moveit::core::RobotStatePtr start_state = considered_start_state_;
@@ -345,7 +345,7 @@ PlanningComponent::getMotionPlanRequest(const PlanRequestParameters& plan_reques
     start_state = moveit_cpp_->getCurrentState();
   }
   start_state->update();
-  moveit::core::robotStateToRobotStateMsg(*start_state, request.start_state);
+  moveit::core::robotStateToRobotStateMsg(*start_state, request.data.start_state);
   return request;
 }
 

@@ -137,11 +137,11 @@ protected:
   {
     planning_interface::MotionPlanRequest req;
 
-    req.planner_id =
+    req.data.planner_id =
         std::string(context_name).erase(0, std::string("pilz_industrial_motion_planner::PlanningContext").length());
-    req.group_name = this->planning_group_;
-    req.max_velocity_scaling_factor = 0.01;
-    req.max_acceleration_scaling_factor = 0.01;
+    req.data.group_name = this->planning_group_;
+    req.data.max_velocity_scaling_factor = 0.01;
+    req.data.max_acceleration_scaling_factor = 0.01;
 
     // start state
     moveit::core::RobotState rstate(this->robot_model_);
@@ -155,7 +155,7 @@ protected:
     Eigen::Isometry3d start_pose(Eigen::Isometry3d::Identity());
     start_pose.translation() = Eigen::Vector3d(0.3, 0, 0.65);
     rstate.setFromIK(this->robot_model_->getJointModelGroup(this->planning_group_), start_pose);
-    moveit::core::robotStateToRobotStateMsg(rstate, req.start_state, false);
+    moveit::core::robotStateToRobotStateMsg(rstate, req.data.start_state, false);
 
     // goal constraint
     Eigen::Isometry3d goal_pose(Eigen::Isometry3d::Identity());
@@ -164,11 +164,11 @@ protected:
     goal_rotation = Eigen::AngleAxisd(0 * M_PI, Eigen::Vector3d::UnitZ());
     goal_pose.linear() = goal_rotation;
     rstate.setFromIK(this->robot_model_->getJointModelGroup(this->planning_group_), goal_pose);
-    req.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
+    req.data.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
         rstate, this->robot_model_->getJointModelGroup(this->planning_group_)));
 
     // path constraint
-    req.path_constraints.name = "center";
+    req.data.path_constraints.name = "center";
     moveit_msgs::msg::PositionConstraint center_point;
     center_point.link_name = this->target_link_;
     geometry_msgs::msg::Pose center_position;
@@ -176,7 +176,7 @@ protected:
     center_position.position.y = 0.0;
     center_position.position.z = 0.65;
     center_point.constraint_region.primitive_poses.push_back(center_position);
-    req.path_constraints.position_constraints.push_back(center_point);
+    req.data.path_constraints.position_constraints.push_back(center_point);
 
     return req;
   }

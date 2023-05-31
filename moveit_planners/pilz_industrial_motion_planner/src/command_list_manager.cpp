@@ -236,7 +236,7 @@ CommandListManager::solveSequenceItems(const planning_scene::PlanningSceneConstP
   for (const auto& seq_item : req_list.items)
   {
     planning_interface::MotionPlanRequest req{ seq_item.req };
-    setStartState(motion_plan_responses, req.group_name, req.start_state);
+    setStartState(motion_plan_responses, req.data.group_name, req.data.start_state);
 
     planning_interface::MotionPlanResponse res;
     planning_pipeline->generatePlan(planning_scene, req, res);

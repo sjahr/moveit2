@@ -81,14 +81,14 @@ public:
     SCOPED_TRACE("testSimpleRequest");
 
     // create all the test specific input necessary to make the getPlanningContext call possible
-    planning_interface::PlannerConfigurationSettings pconfig_settings;
+    ::planning_interface::PlannerConfigurationSettings pconfig_settings;
     pconfig_settings.group = group_name_;
     pconfig_settings.name = group_name_;
     pconfig_settings.config = { { "enforce_joint_model_state_space", "0" } };
 
-    planning_interface::PlannerConfigurationMap pconfig_map{ { pconfig_settings.name, pconfig_settings } };
+    ::planning_interface::PlannerConfigurationMap pconfig_map{ { pconfig_settings.name, pconfig_settings } };
     moveit_msgs::msg::MoveItErrorCodes error_code;
-    planning_interface::MotionPlanRequest request = createRequest(start, goal);
+    ::planning_interface::MotionPlanRequest request = createRequest(start, goal);
 
     // setup the planning context manager
     ompl_interface::PlanningContextManager pcm(robot_model_, constraint_sampler_manager_);
@@ -107,7 +107,7 @@ public:
     EXPECT_TRUE(pc->getPathConstraints()->empty());
 
     // solve the planning problem
-    planning_interface::MotionPlanDetailedResponse res;
+    ::planning_interface::MotionPlanDetailedResponse res;
     ASSERT_TRUE(pc->solve(res));
   }
 
@@ -118,19 +118,19 @@ public:
     // create all the test specific input necessary to make the getPlanningContext call possible
     const auto& joint_names = joint_model_group_->getJointModelNames();
 
-    planning_interface::PlannerConfigurationSettings pconfig_settings;
+    ::planning_interface::PlannerConfigurationSettings pconfig_settings;
     pconfig_settings.group = group_name_;
     pconfig_settings.name = group_name_;
     pconfig_settings.config = { { "enforce_joint_model_state_space", "0" },
                                 { "projection_evaluator", "joints(" + joint_names[0] + "," + joint_names[1] + ")" },
                                 { "type", "geometric::PRM" } };
 
-    planning_interface::PlannerConfigurationMap pconfig_map{ { pconfig_settings.name, pconfig_settings } };
+    ::planning_interface::PlannerConfigurationMap pconfig_map{ { pconfig_settings.name, pconfig_settings } };
     moveit_msgs::msg::MoveItErrorCodes error_code;
-    planning_interface::MotionPlanRequest request = createRequest(start, goal);
+    ::planning_interface::MotionPlanRequest request = createRequest(start, goal);
 
     // give it some more time, as rejection sampling of the path constraints occasionally takes some time
-    request.allowed_planning_time = 10.0;
+    request.data.allowed_planning_time = 10.0;
 
     // create path constraints around start state,  to make sure they are satisfied
     robot_state_->setJointGroupPositions(joint_model_group_, start);
@@ -143,7 +143,7 @@ public:
 
     // ORIENTATION CONSTRAINTS
     // ***********************
-    request.path_constraints.orientation_constraints.push_back(createOrientationConstraint(ee_orientation));
+    request.data.path_constraints.orientation_constraints.push_back(createOrientationConstraint(ee_orientation));
 
     // See if the planning context manager returns the expected planning context
     auto pc = pcm.getPlanningContext(planning_scene_, request, error_code, node_, false);
@@ -153,7 +153,7 @@ public:
     // As the joint_model_group_ has exactly one constraint, we expect a constrained planning state space
     EXPECT_NE(dynamic_cast<ompl_interface::ConstrainedPlanningStateSpace*>(pc->getOMPLStateSpace().get()), nullptr);
 
-    planning_interface::MotionPlanDetailedResponse response;
+    ::planning_interface::MotionPlanDetailedResponse response;
     ASSERT_TRUE(pc->solve(response));
 
     // Are the path constraints created in the planning context?
@@ -177,8 +177,8 @@ public:
 
     // POSITION CONSTRAINTS
     // ***********************
-    request.path_constraints.orientation_constraints.clear();
-    request.path_constraints.position_constraints.push_back(createPositionConstraint(
+    request.data.path_constraints.orientation_constraints.clear();
+    request.data.path_constraints.position_constraints.push_back(createPositionConstraint(
         { ee_pose.translation().x(), ee_pose.translation().y(), ee_pose.translation().z() }, { 0.1, 0.1, 0.1 }));
 
     // See if the planning context manager returns the expected planning context
@@ -190,7 +190,7 @@ public:
     EXPECT_NE(dynamic_cast<ompl_interface::ConstrainedPlanningStateSpace*>(pc->getOMPLStateSpace().get()), nullptr);
 
     // Create a new response, because the solve method does not clear the given response
-    planning_interface::MotionPlanDetailedResponse response2;
+    ::planning_interface::MotionPlanDetailedResponse response2;
     ASSERT_TRUE(pc->solve(response2));
 
     // Are the path constraints created in the planning context?
@@ -220,18 +220,18 @@ protected:
   }
 
   /** Create a planning request to plan from a given start state to a joint space goal. **/
-  planning_interface::MotionPlanRequest createRequest(const std::vector<double>& start,
-                                                      const std::vector<double>& goal) const
+  ::planning_interface::MotionPlanRequest createRequest(const std::vector<double>& start,
+                                                        const std::vector<double>& goal) const
   {
-    planning_interface::MotionPlanRequest request;
-    request.group_name = group_name_;
-    request.allowed_planning_time = 5.0;
+    ::planning_interface::MotionPlanRequest request;
+    request.data.group_name = group_name_;
+    request.data.allowed_planning_time = 5.0;
 
     // fill out start state in request
     moveit::core::RobotState start_state(robot_model_);
     start_state.setToDefaultValues();
     start_state.setJointGroupPositions(joint_model_group_, start);
-    moveit::core::robotStateToRobotStateMsg(start_state, request.start_state);
+    moveit::core::robotStateToRobotStateMsg(start_state, request.data.start_state);
 
     // fill out goal state in request
     moveit::core::RobotState goal_state(robot_model_);
@@ -241,7 +241,7 @@ protected:
     moveit_msgs::msg::Constraints joint_goal =
         kinematic_constraints::constructGoalConstraints(goal_state, joint_model_group_, 0.001);
 
-    request.goal_constraints.push_back(joint_goal);
+    request.data.goal_constraints.push_back(joint_goal);
 
     return request;
   }

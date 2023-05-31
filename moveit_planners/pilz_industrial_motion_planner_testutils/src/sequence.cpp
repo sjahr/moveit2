@@ -72,7 +72,8 @@ moveit_msgs::msg::MotionSequenceRequest Sequence::toRequest() const
   for (const auto& cmd : cmds_)
   {
     moveit_msgs::msg::MotionSequenceItem item;
-    item.req = std::visit(ToReqVisitor(), cmd.first);
+    auto request = std::visit(ToReqVisitor(), cmd.first);
+    item.req = request.data;
 
     if (std::find(group_names.begin(), group_names.end(), item.req.group_name) != group_names.end())
     {

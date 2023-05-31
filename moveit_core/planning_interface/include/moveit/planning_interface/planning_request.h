@@ -36,12 +36,23 @@
 
 #pragma once
 
+#include <Eigen/Core>
 #include <moveit_msgs/msg/motion_plan_request.hpp>
 
 namespace planning_interface
 {
-// for now this is just a typedef
 
-typedef moveit_msgs::msg::MotionPlanRequest MotionPlanRequest;
+/** \brief Definition for a cost function to measure the cost of a single state during motion planning */
+using StateCostFn = std::function<double(const Eigen::VectorXd& state_vector)>;
+struct MotionPlanRequest
+{
+  MotionPlanRequest() = default;
+  MotionPlanRequest(const moveit_msgs::msg::MotionPlanRequest& request_msg) : data(request_msg)
+  {
+  }
+
+  moveit_msgs::msg::MotionPlanRequest data;
+  planning_interface::StateCostFn state_cost_function = nullptr;
+};
 
 }  // namespace planning_interface

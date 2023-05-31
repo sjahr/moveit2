@@ -62,7 +62,7 @@ bool ChompPlanner::solve(const planning_scene::PlanningSceneConstPtr& planning_s
 
   // get the specified start state
   moveit::core::RobotState start_state = planning_scene->getCurrentState();
-  moveit::core::robotStateMsgToRobotState(planning_scene->getTransforms(), req.start_state, start_state);
+  moveit::core::robotStateMsgToRobotState(planning_scene->getTransforms(), req.data.start_state, start_state);
 
   if (!start_state.satisfiesBounds())
   {
@@ -71,18 +71,19 @@ bool ChompPlanner::solve(const planning_scene::PlanningSceneConstPtr& planning_s
     return false;
   }
 
-  ChompTrajectory trajectory(planning_scene->getRobotModel(), 3.0, .03, req.group_name);
-  robotStateToArray(start_state, req.group_name, trajectory.getTrajectoryPoint(0));
+  ChompTrajectory trajectory(planning_scene->getRobotModel(), 3.0, .03, req.data.group_name);
+  robotStateToArray(start_state, req.data.group_name, trajectory.getTrajectoryPoint(0));
 
-  if (req.goal_constraints.size() != 1)
+  if (req.data.goal_constraints.size() != 1)
   {
-    RCLCPP_ERROR(LOGGER, "Expecting exactly one goal constraint, got: %zd", req.goal_constraints.size());
+    RCLCPP_ERROR(LOGGER, "Expecting exactly one goal constraint, got: %zd", req.data.goal_constraints.size());
     res.error_code.val = moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
     return false;
   }
 
-  if (req.goal_constraints[0].joint_constraints.empty() || !req.goal_constraints[0].position_constraints.empty() ||
-      !req.goal_constraints[0].orientation_constraints.empty())
+  if (req.data.goal_constraints[0].joint_constraints.empty() ||
+      !req.data.goal_constraints[0].position_constraints.empty() ||
+      !req.data.goal_constraints[0].orientation_constraints.empty())
   {
     RCLCPP_ERROR(LOGGER, "Only joint-space goals are supported");
     res.error_code.val = moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
@@ -91,7 +92,7 @@ bool ChompPlanner::solve(const planning_scene::PlanningSceneConstPtr& planning_s
 
   const size_t goal_index = trajectory.getNumPoints() - 1;
   moveit::core::RobotState goal_state(start_state);
-  for (const moveit_msgs::msg::JointConstraint& joint_constraint : req.goal_constraints[0].joint_constraints)
+  for (const moveit_msgs::msg::JointConstraint& joint_constraint : req.data.goal_constraints[0].joint_constraints)
     goal_state.setVariablePosition(joint_constraint.joint_name, joint_constraint.position);
   if (!goal_state.satisfiesBounds())
   {
@@ -99,10 +100,10 @@ bool ChompPlanner::solve(const planning_scene::PlanningSceneConstPtr& planning_s
     res.error_code.val = moveit_msgs::msg::MoveItErrorCodes::INVALID_ROBOT_STATE;
     return false;
   }
-  robotStateToArray(goal_state, req.group_name, trajectory.getTrajectoryPoint(goal_index));
+  robotStateToArray(goal_state, req.data.group_name, trajectory.getTrajectoryPoint(goal_index));
 
   const moveit::core::JointModelGroup* model_group =
-      planning_scene->getRobotModel()->getJointModelGroup(req.group_name);
+      planning_scene->getRobotModel()->getJointModelGroup(req.data.group_name);
   // fix the goal to move the shortest angular distance for wrap-around joints:
   for (size_t i = 0; i < model_group->getActiveJointModels().size(); ++i)
   {
@@ -190,8 +191,8 @@ bool ChompPlanner::solve(const planning_scene::PlanningSceneConstPtr& planning_s
 
     // initialize a ChompOptimizer object to load up the optimizer with default parameters or with updated parameters in
     // case of a recovery behaviour
-    optimizer =
-        std::make_unique<ChompOptimizer>(&trajectory, planning_scene, req.group_name, &params_nonconst, start_state);
+    optimizer = std::make_unique<ChompOptimizer>(&trajectory, planning_scene, req.data.group_name, &params_nonconst,
+                                                 start_state);
     if (!optimizer->isInitialized())
     {
       RCLCPP_ERROR(LOGGER, "Could not initialize optimizer");
@@ -239,7 +240,8 @@ bool ChompPlanner::solve(const planning_scene::PlanningSceneConstPtr& planning_s
 
   RCLCPP_DEBUG(LOGGER, "Output trajectory has %zd joints", trajectory.getNumJoints());
 
-  auto result = std::make_shared<robot_trajectory::RobotTrajectory>(planning_scene->getRobotModel(), req.group_name);
+  auto result =
+      std::make_shared<robot_trajectory::RobotTrajectory>(planning_scene->getRobotModel(), req.data.group_name);
   // fill in the entire trajectory
   for (size_t i = 0; i < trajectory.getNumPoints(); ++i)
   {
@@ -278,7 +280,7 @@ bool ChompPlanner::solve(const planning_scene::PlanningSceneConstPtr& planning_s
   // check that final state is within goal tolerances
   kinematic_constraints::JointConstraint jc(planning_scene->getRobotModel());
   const moveit::core::RobotState& last_state = result->getLastWayPoint();
-  for (const moveit_msgs::msg::JointConstraint& constraint : req.goal_constraints[0].joint_constraints)
+  for (const moveit_msgs::msg::JointConstraint& constraint : req.data.goal_constraints[0].joint_constraints)
   {
     if (!jc.configure(constraint) || !jc.decide(last_state).satisfied)
     {

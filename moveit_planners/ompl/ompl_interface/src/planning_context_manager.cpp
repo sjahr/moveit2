@@ -326,15 +326,15 @@ ConfiguredPlannerSelector PlanningContextManager::getPlannerSelector() const
   return [this](const std::string& planner) { return plannerSelector(planner); };
 }
 
-void PlanningContextManager::setPlannerConfigurations(const planning_interface::PlannerConfigurationMap& pconfig)
+void PlanningContextManager::setPlannerConfigurations(const ::planning_interface::PlannerConfigurationMap& pconfig)
 {
   planner_configs_ = pconfig;
 }
 
 ModelBasedPlanningContextPtr
-PlanningContextManager::getPlanningContext(const planning_interface::PlannerConfigurationSettings& config,
+PlanningContextManager::getPlanningContext(const ::planning_interface::PlannerConfigurationSettings& config,
                                            const ModelBasedStateSpaceFactoryPtr& factory,
-                                           const moveit_msgs::msg::MotionPlanRequest& req) const
+                                           const ::planning_interface::MotionPlanRequest& req) const
 {
   // Check for a cached planning context
   ModelBasedPlanningContextPtr context;
@@ -372,7 +372,7 @@ PlanningContextManager::getPlanningContext(const planning_interface::PlannerConf
 
       // Select the correct type of constraints based on the path constraints in the planning request.
       ompl::base::ConstraintPtr ompl_constraint =
-          createOMPLConstraints(robot_model_, config.group, req.path_constraints);
+          createOMPLConstraints(robot_model_, config.group, req.data.path_constraints);
 
       // Create a constrained state space of type "projected state space".
       // Other types are available, so we probably should add another setting to ompl_planning.yaml
@@ -439,7 +439,7 @@ const ModelBasedStateSpaceFactoryPtr& PlanningContextManager::getStateSpaceFacto
 
 const ModelBasedStateSpaceFactoryPtr&
 PlanningContextManager::getStateSpaceFactory(const std::string& group,
-                                             const moveit_msgs::msg::MotionPlanRequest& req) const
+                                             const ::planning_interface::MotionPlanRequest& req) const
 {
   // find the problem representation to use
   auto best = state_space_factories_.end();
@@ -469,11 +469,11 @@ PlanningContextManager::getStateSpaceFactory(const std::string& group,
 }
 
 ModelBasedPlanningContextPtr PlanningContextManager::getPlanningContext(
-    const planning_scene::PlanningSceneConstPtr& planning_scene, const moveit_msgs::msg::MotionPlanRequest& req,
+    const planning_scene::PlanningSceneConstPtr& planning_scene, const ::planning_interface::MotionPlanRequest& req,
     moveit_msgs::msg::MoveItErrorCodes& error_code, const rclcpp::Node::SharedPtr& node,
     bool use_constraints_approximation) const
 {
-  if (req.group_name.empty())
+  if (req.data.group_name.empty())
   {
     RCLCPP_ERROR(LOGGER, "No group specified to plan for");
     error_code.val = moveit_msgs::msg::MoveItErrorCodes::INVALID_GROUP_NAME;
@@ -490,25 +490,25 @@ ModelBasedPlanningContextPtr PlanningContextManager::getPlanningContext(
 
   // identify the correct planning configuration
   auto pc = planner_configs_.end();
-  if (!req.planner_id.empty())
+  if (!req.data.planner_id.empty())
   {
-    pc = planner_configs_.find(req.planner_id.find(req.group_name) == std::string::npos ?
-                                   req.group_name + "[" + req.planner_id + "]" :
-                                   req.planner_id);
+    pc = planner_configs_.find(req.data.planner_id.find(req.data.group_name) == std::string::npos ?
+                                   req.data.group_name + "[" + req.data.planner_id + "]" :
+                                   req.data.planner_id);
     if (pc == planner_configs_.end())
     {
       RCLCPP_WARN(LOGGER,
                   "Cannot find planning configuration for group '%s' using planner '%s'. Will use defaults instead.",
-                  req.group_name.c_str(), req.planner_id.c_str());
+                  req.data.group_name.c_str(), req.data.planner_id.c_str());
     }
   }
 
   if (pc == planner_configs_.end())
   {
-    pc = planner_configs_.find(req.group_name);
+    pc = planner_configs_.find(req.data.group_name);
     if (pc == planner_configs_.end())
     {
-      RCLCPP_ERROR(LOGGER, "Cannot find planning configuration for group '%s'", req.group_name.c_str());
+      RCLCPP_ERROR(LOGGER, "Cannot find planning configuration for group '%s'", req.data.group_name.c_str());
       return ModelBasedPlanningContextPtr();
     }
   }
@@ -530,7 +530,7 @@ ModelBasedPlanningContextPtr PlanningContextManager::getPlanningContext(
   // This is done by setting 'enforce_constrained_state_space' to 'true' for the desired group in ompl_planing.yaml.
   // If there are no path constraints in the planning request, this option is ignored, as the constrained state space is
   // only useful for paths constraints. (And at the moment only a single position constraint is supported, hence:
-  //     req.path_constraints.position_constraints.size() == 1
+  //     req.data.path_constraints.position_constraints.size() == 1
   // is used in the selection process below.)
   //
   // enforce_joint_model_state_space
@@ -549,8 +549,8 @@ ModelBasedPlanningContextPtr PlanningContextManager::getPlanningContext(
   // Use ConstrainedPlanningStateSpace if there is exactly one position constraint and/or one orientation constraint
   if (constrained_planning_iterator != pc->second.config.end() &&
       boost::lexical_cast<bool>(constrained_planning_iterator->second) &&
-      ((req.path_constraints.position_constraints.size() == 1) ||
-       (req.path_constraints.orientation_constraints.size() == 1)))
+      ((req.data.path_constraints.position_constraints.size() == 1) ||
+       (req.data.path_constraints.orientation_constraints.size() == 1)))
   {
     factory = getStateSpaceFactory(ConstrainedPlanningStateSpace::PARAMETERIZATION_TYPE);
   }
@@ -570,20 +570,20 @@ ModelBasedPlanningContextPtr PlanningContextManager::getPlanningContext(
   {
     context->clear();
 
-    moveit::core::RobotStatePtr start_state = planning_scene->getCurrentStateUpdated(req.start_state);
+    moveit::core::RobotStatePtr start_state = planning_scene->getCurrentStateUpdated(req.data.start_state);
 
     // Setup the context
     context->setPlanningScene(planning_scene);
     context->setMotionPlanRequest(req);
     context->setCompleteInitialState(*start_state);
 
-    context->setPlanningVolume(req.workspace_parameters);
-    if (!context->setPathConstraints(req.path_constraints, &error_code))
+    context->setPlanningVolume(req.data.workspace_parameters);
+    if (!context->setPathConstraints(req.data.path_constraints, &error_code))
     {
       return ModelBasedPlanningContextPtr();
     }
 
-    if (!context->setGoalConstraints(req.goal_constraints, req.path_constraints, &error_code))
+    if (!context->setGoalConstraints(req.data.goal_constraints, req.data.path_constraints, &error_code))
     {
       return ModelBasedPlanningContextPtr();
     }

@@ -69,7 +69,7 @@ public:
   {
     error_code.val = moveit_msgs::msg::MoveItErrorCodes::SUCCESS;
 
-    if (req.group_name.empty())
+    if (req.data.group_name.empty())
     {
       RCLCPP_ERROR(LOGGER, "No group specified to plan for");
       error_code.val = moveit_msgs::msg::MoveItErrorCodes::INVALID_GROUP_NAME;
@@ -88,7 +88,7 @@ public:
     ps->allocateCollisionDetector(collision_detection::CollisionDetectorAllocatorHybrid::create());
 
     // retrieve and configure existing context
-    const CHOMPPlanningContextPtr& context = planning_contexts_.at(req.group_name);
+    const CHOMPPlanningContextPtr& context = planning_contexts_.at(req.data.group_name);
     context->setPlanningScene(ps);
     context->setMotionPlanRequest(req);
     error_code.val = moveit_msgs::msg::MoveItErrorCodes::SUCCESS;

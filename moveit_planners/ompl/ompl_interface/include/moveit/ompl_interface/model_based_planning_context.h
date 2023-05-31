@@ -84,7 +84,7 @@ struct ModelBasedPlanningContextSpecification
   ob::ConstrainedStateSpacePtr constrained_state_space_;
 };
 
-class ModelBasedPlanningContext : public planning_interface::PlanningContext
+class ModelBasedPlanningContext : public ::planning_interface::PlanningContext
 {
 public:
   ModelBasedPlanningContext(const std::string& name, const ModelBasedPlanningContextSpecification& spec);

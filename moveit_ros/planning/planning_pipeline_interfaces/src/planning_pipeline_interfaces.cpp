@@ -51,10 +51,10 @@ planWithSinglePipeline(const ::planning_interface::MotionPlanRequest& motion_pla
                        const ::planning_interface::StateCostFn& state_cost_function)
 {
   ::planning_interface::MotionPlanResponse motion_plan_response;
-  auto it = planning_pipelines.find(motion_plan_request.pipeline_id);
+  auto it = planning_pipelines.find(motion_plan_request.data.pipeline_id);
   if (it == planning_pipelines.end())
   {
-    RCLCPP_ERROR(LOGGER, "No planning pipeline available for name '%s'", motion_plan_request.pipeline_id.c_str());
+    RCLCPP_ERROR(LOGGER, "No planning pipeline available for name '%s'", motion_plan_request.data.pipeline_id.c_str());
     motion_plan_response.error_code = moveit::core::MoveItErrorCode::FAILURE;
     return motion_plan_response;
   }
@@ -98,11 +98,11 @@ const std::vector<::planning_interface::MotionPlanResponse> planWithParallelPipe
       }
       catch (const std::exception& e)
       {
-        RCLCPP_ERROR(LOGGER, "Planning pipeline '%s' threw exception '%s'", request.pipeline_id.c_str(), e.what());
+        RCLCPP_ERROR(LOGGER, "Planning pipeline '%s' threw exception '%s'", request.data.pipeline_id.c_str(), e.what());
         plan_solution = ::planning_interface::MotionPlanResponse();
         plan_solution.error_code = moveit::core::MoveItErrorCode::FAILURE;
       }
-      plan_solution.planner_id = request.planner_id;
+      plan_solution.planner_id = request.data.planner_id;
       plan_responses_container.pushBack(plan_solution);
 
       if (stopping_criterion_callback != nullptr)
@@ -115,7 +115,7 @@ const std::vector<::planning_interface::MotionPlanResponse> planWithParallelPipe
           {
             try
             {
-              const auto& planning_pipeline = planning_pipelines.at(request.pipeline_id);
+              const auto& planning_pipeline = planning_pipelines.at(request.data.pipeline_id);
               if (planning_pipeline->isActive())
               {
                 planning_pipeline->terminate();
@@ -124,7 +124,7 @@ const std::vector<::planning_interface::MotionPlanResponse> planWithParallelPipe
             catch (const std::out_of_range&)
             {
               RCLCPP_WARN(LOGGER, "Cannot terminate pipeline '%s' because no pipeline with that name exists",
-                          request.pipeline_id.c_str());
+                          request.data.pipeline_id.c_str());
             }
           }
         }

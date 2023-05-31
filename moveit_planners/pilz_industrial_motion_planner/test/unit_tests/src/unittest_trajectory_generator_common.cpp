@@ -140,20 +140,20 @@ protected:
 
     // create a valid motion plan request with goal in joint space as basis for
     // tests
-    req_.group_name = planning_group_;
-    req_.max_velocity_scaling_factor = 1.0;
-    req_.max_acceleration_scaling_factor = 1.0;
+    req_.data.group_name = planning_group_;
+    req_.data.max_velocity_scaling_factor = 1.0;
+    req_.data.max_acceleration_scaling_factor = 1.0;
     moveit::core::RobotState rstate(robot_model_);
     rstate.setToDefaultValues();
     rstate.setJointGroupPositions(planning_group_, std::vector<double>{ 0, M_PI / 2, 0, M_PI / 2, 0, 0 });
     rstate.setVariableVelocities(std::vector<double>(rstate.getVariableCount(), 0.0));
-    moveit::core::robotStateToRobotStateMsg(rstate, req_.start_state, false);
+    moveit::core::robotStateToRobotStateMsg(rstate, req_.data.start_state, false);
     moveit_msgs::msg::Constraints goal_constraint;
     moveit_msgs::msg::JointConstraint joint_constraint;
     joint_constraint.joint_name = this->robot_model_->getActiveJointModels().front()->getName();
     joint_constraint.position = 0.5;
     goal_constraint.joint_constraints.push_back(joint_constraint);
-    req_.goal_constraints.push_back(goal_constraint);
+    req_.data.goal_constraints.push_back(goal_constraint);
   }
 
 protected:
@@ -191,23 +191,23 @@ TYPED_TEST_SUITE(TrajectoryGeneratorCommonTestNoGripper, TrajectoryGeneratorComm
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, InvalideScalingFactor)
 {
-  this->req_.max_velocity_scaling_factor = 2.0;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.max_velocity_scaling_factor = 2.0;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_MOTION_PLAN);
 
-  this->req_.max_velocity_scaling_factor = 1.0;
-  this->req_.max_acceleration_scaling_factor = 0;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.max_velocity_scaling_factor = 1.0;
+  this->req_.data.max_acceleration_scaling_factor = 0;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_MOTION_PLAN);
 
-  this->req_.max_velocity_scaling_factor = 0.00001;
-  this->req_.max_acceleration_scaling_factor = 1;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.max_velocity_scaling_factor = 0.00001;
+  this->req_.data.max_acceleration_scaling_factor = 1;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_MOTION_PLAN);
 
-  this->req_.max_velocity_scaling_factor = 1;
-  this->req_.max_acceleration_scaling_factor = -1;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.max_velocity_scaling_factor = 1;
+  this->req_.data.max_acceleration_scaling_factor = -1;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_MOTION_PLAN);
 }
 
@@ -216,8 +216,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, InvalideScalingFactor)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, InvalidGroupName)
 {
-  this->req_.group_name = "foot";
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.group_name = "foot";
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(moveit_msgs::msg::MoveItErrorCodes::INVALID_GROUP_NAME, this->res_.error_code.val);
 }
 
@@ -226,8 +226,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, InvalidGroupName)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTestNoGripper, GripperGroup)
 {
-  this->req_.group_name = "gripper";
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.group_name = "gripper";
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(moveit_msgs::msg::MoveItErrorCodes::INVALID_GROUP_NAME, this->res_.error_code.val);
 }
 
@@ -236,8 +236,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTestNoGripper, GripperGroup)
  */
 // TYPED_TEST(TrajectoryGeneratorCommonTestWithGripper, GripperGroup)
 // {
-//   this->req_.group_name = "gripper";
-//   EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+//   this->req_.data.group_name = "gripper";
+//   EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
 //   EXPECT_EQ(moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS, this->res_.error_code.val);
 // }
 
@@ -251,7 +251,7 @@ TYPED_TEST(TrajectoryGeneratorCommonTestNoGripper, GripperGroup)
  */
 // TYPED_TEST(TrajectoryGeneratorCommonTest, NoIKSolver)
 //{
-//  EXPECT_FALSE(this->trajectory_generator_->generate(this->req_, this->res_));
+//  EXPECT_FALSE(this->trajectory_generator_->generate(this->req_.data, this->res_));
 //  EXPECT_EQ(this->res_.error_code.val,
 //  moveit_msgs::msg::MoveItErrorCodes::INVALID_GROUP_NAME);
 //}
@@ -261,8 +261,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTestNoGripper, GripperGroup)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, EmptyJointNamesInStartState)
 {
-  this->req_.start_state.joint_state.name.clear();
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.start_state.joint_state.name.clear();
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_ROBOT_STATE);
 }
 
@@ -271,8 +271,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, EmptyJointNamesInStartState)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, InconsistentStartState)
 {
-  this->req_.start_state.joint_state.name.push_back("joint_7");
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.start_state.joint_state.name.push_back("joint_7");
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_ROBOT_STATE);
 }
 
@@ -281,8 +281,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, InconsistentStartState)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, StartPostionOutOfLimit)
 {
-  this->req_.start_state.joint_state.position[0] = 100;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.start_state.joint_state.position[0] = 100;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_ROBOT_STATE);
 }
 
@@ -295,8 +295,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, StartPostionOutOfLimit)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, StartPositionVelocityNoneZero)
 {
-  this->req_.start_state.joint_state.velocity[0] = 100;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.start_state.joint_state.velocity[0] = 100;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_ROBOT_STATE);
 }
 
@@ -305,8 +305,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, StartPositionVelocityNoneZero)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, EmptyGoalConstraints)
 {
-  this->req_.goal_constraints.clear();
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 }
 
@@ -321,25 +321,25 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, MultipleGoals)
   moveit_msgs::msg::Constraints goal_constraint;
 
   // two goal constraints
-  this->req_.goal_constraints.push_back(goal_constraint);
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 
   // one joint constraint and one orientation constraint
   goal_constraint.joint_constraints.push_back(joint_constraint);
   goal_constraint.orientation_constraints.push_back(orientation_constraint);
-  this->req_.goal_constraints.clear();
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 
   // one joint constraint and one Cartesian constraint
   goal_constraint.position_constraints.push_back(position_constraint);
   goal_constraint.orientation_constraints.push_back(orientation_constraint);
-  this->req_.goal_constraints.clear();
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 
   // two Cartesian constraints
@@ -348,9 +348,9 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, MultipleGoals)
   goal_constraint.orientation_constraints.push_back(orientation_constraint);
   goal_constraint.position_constraints.push_back(position_constraint);
   goal_constraint.orientation_constraints.push_back(orientation_constraint);
-  this->req_.goal_constraints.clear();
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 }
 
@@ -361,8 +361,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, InvalideJointNameInGoal)
 {
   moveit_msgs::msg::JointConstraint joint_constraint;
   joint_constraint.joint_name = "test_joint_2";
-  this->req_.goal_constraints.front().joint_constraints[0] = joint_constraint;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.front().joint_constraints[0] = joint_constraint;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 }
 
@@ -373,8 +373,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, MissingJointConstraint)
 {
   moveit_msgs::msg::JointConstraint joint_constraint;
   joint_constraint.joint_name = "test_joint_2";
-  this->req_.goal_constraints.front().joint_constraints.pop_back();  //<-- Missing joint constraint
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.front().joint_constraints.pop_back();  //<-- Missing joint constraint
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 }
 
@@ -383,8 +383,8 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, MissingJointConstraint)
  */
 TYPED_TEST(TrajectoryGeneratorCommonTest, InvalideJointPositionInGoal)
 {
-  this->req_.goal_constraints.front().joint_constraints[0].position = 100;
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.front().joint_constraints[0].position = 100;
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 }
 
@@ -399,24 +399,24 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, InvalidLinkNameInCartesianGoal)
   // link name not set
   goal_constraint.position_constraints.push_back(position_constraint);
   goal_constraint.orientation_constraints.push_back(orientation_constraint);
-  this->req_.goal_constraints.clear();
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 
   // different link names in position and orientation goals
   goal_constraint.position_constraints.front().link_name = "test_link_1";
   goal_constraint.orientation_constraints.front().link_name = "test_link_2";
-  this->req_.goal_constraints.clear();
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 
   // no solver for the link
   goal_constraint.orientation_constraints.front().link_name = "test_link_1";
-  this->req_.goal_constraints.clear();
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::NO_IK_SOLUTION);
 }
 
@@ -434,9 +434,9 @@ TYPED_TEST(TrajectoryGeneratorCommonTest, EmptyPrimitivePoses)
 
   goal_constraint.position_constraints.push_back(position_constraint);
   goal_constraint.orientation_constraints.push_back(orientation_constraint);
-  this->req_.goal_constraints.clear();
-  this->req_.goal_constraints.push_back(goal_constraint);
-  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_, this->res_));
+  this->req_.data.goal_constraints.clear();
+  this->req_.data.goal_constraints.push_back(goal_constraint);
+  EXPECT_FALSE(this->trajectory_generator_->generate(this->planning_scene_, this->req_.data, this->res_));
   EXPECT_EQ(this->res_.error_code.val, moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS);
 }
 

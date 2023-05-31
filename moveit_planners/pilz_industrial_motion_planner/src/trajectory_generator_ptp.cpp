@@ -213,20 +213,20 @@ void TrajectoryGeneratorPTP::extractMotionPlanInfo(const planning_scene::Plannin
                                                    const planning_interface::MotionPlanRequest& req,
                                                    MotionPlanInfo& info) const
 {
-  info.group_name = req.group_name;
+  info.group_name = req.data.group_name;
 
   // extract start state information
   info.start_joint_position.clear();
-  for (std::size_t i = 0; i < req.start_state.joint_state.name.size(); ++i)
+  for (std::size_t i = 0; i < req.data.start_state.joint_state.name.size(); ++i)
   {
-    info.start_joint_position[req.start_state.joint_state.name[i]] = req.start_state.joint_state.position[i];
+    info.start_joint_position[req.data.start_state.joint_state.name[i]] = req.data.start_state.joint_state.position[i];
   }
 
   // extract goal
   info.goal_joint_position.clear();
-  if (!req.goal_constraints.at(0).joint_constraints.empty())
+  if (!req.data.goal_constraints.at(0).joint_constraints.empty())
   {
-    for (const auto& joint_constraint : req.goal_constraints.at(0).joint_constraints)
+    for (const auto& joint_constraint : req.data.goal_constraints.at(0).joint_constraints)
     {
       info.goal_joint_position[joint_constraint.joint_name] = joint_constraint.position;
     }
@@ -234,8 +234,8 @@ void TrajectoryGeneratorPTP::extractMotionPlanInfo(const planning_scene::Plannin
   // solve the ik
   else
   {
-    Eigen::Isometry3d goal_pose = getConstraintPose(req.goal_constraints.front());
-    if (!computePoseIK(scene, req.group_name, req.goal_constraints.at(0).position_constraints.at(0).link_name,
+    Eigen::Isometry3d goal_pose = getConstraintPose(req.data.goal_constraints.front());
+    if (!computePoseIK(scene, req.data.group_name, req.data.goal_constraints.at(0).position_constraints.at(0).link_name,
                        goal_pose, robot_model_->getModelFrame(), info.start_joint_position, info.goal_joint_position))
     {
       throw PtpNoIkSolutionForGoalPose("No IK solution for goal pose");
@@ -249,7 +249,7 @@ void TrajectoryGeneratorPTP::plan(const planning_scene::PlanningSceneConstPtr& /
 {
   // plan the ptp trajectory
   planPTP(plan_info.start_joint_position, plan_info.goal_joint_position, joint_trajectory,
-          req.max_velocity_scaling_factor, req.max_acceleration_scaling_factor, sampling_time);
+          req.data.max_velocity_scaling_factor, req.data.max_acceleration_scaling_factor, sampling_time);
 }
 
 }  // namespace pilz_industrial_motion_planner

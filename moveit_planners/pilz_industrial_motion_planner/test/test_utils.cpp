@@ -75,7 +75,7 @@ bool testutils::getExpectedGoalPose(const moveit::core::RobotModelConstPtr& robo
   // ++++++++++++++++++++++++++++++++++
   // + Get goal from joint constraint +
   // ++++++++++++++++++++++++++++++++++
-  if (!req.goal_constraints.front().joint_constraints.empty())
+  if (!req.data.goal_constraints.front().joint_constraints.empty())
   {
     std::map<std::string, double> goal_joint_position;
 
@@ -85,12 +85,12 @@ bool testutils::getExpectedGoalPose(const moveit::core::RobotModelConstPtr& robo
       goal_joint_position[joint_name] = 0;
     }
 
-    for (const auto& joint_item : req.goal_constraints.front().joint_constraints)
+    for (const auto& joint_item : req.data.goal_constraints.front().joint_constraints)
     {
       goal_joint_position[joint_item.joint_name] = joint_item.position;
     }
 
-    link_name = robot_model->getJointModelGroup(req.group_name)->getSolverInstance()->getTipFrame();
+    link_name = robot_model->getJointModelGroup(req.data.group_name)->getSolverInstance()->getTipFrame();
 
     if (!computeLinkFK(robot_model, link_name, goal_joint_position, goal_pose_expect))
     {
@@ -105,11 +105,11 @@ bool testutils::getExpectedGoalPose(const moveit::core::RobotModelConstPtr& robo
   // + Get goal from cartesian constraint +
   // ++++++++++++++++++++++++++++++++++++++
   // TODO frame id
-  link_name = req.goal_constraints.front().position_constraints.front().link_name;
+  link_name = req.data.goal_constraints.front().position_constraints.front().link_name;
   geometry_msgs::msg::Pose goal_pose_msg;
   goal_pose_msg.position =
-      req.goal_constraints.front().position_constraints.front().constraint_region.primitive_poses.front().position;
-  goal_pose_msg.orientation = req.goal_constraints.front().orientation_constraints.front().orientation;
+      req.data.goal_constraints.front().position_constraints.front().constraint_region.primitive_poses.front().position;
+  goal_pose_msg.orientation = req.data.goal_constraints.front().orientation_constraints.front().orientation;
   normalizeQuaternion(goal_pose_msg.orientation);
   tf2::fromMsg(goal_pose_msg, goal_pose_expect);
   return true;
@@ -235,7 +235,7 @@ bool testutils::checkCartesianLinearity(const moveit::core::RobotModelConstPtr& 
   // compute start pose
   moveit::core::RobotState rstate(robot_model);
   rstate.setToDefaultValues();
-  moveit::core::jointStateToRobotState(req.start_state.joint_state, rstate);
+  moveit::core::jointStateToRobotState(req.data.start_state.joint_state, rstate);
   Eigen::Isometry3d start_pose = rstate.getFrameTransform(link_name);
 
   // start goal angle axis
@@ -505,26 +505,26 @@ void testutils::createDummyRequest(const moveit::core::RobotModelConstPtr& robot
                                    const std::string& planning_group, planning_interface::MotionPlanRequest& req)
 {
   // valid motion plan request with goal in joint space
-  req.group_name = planning_group;
-  req.max_velocity_scaling_factor = 1.0;
-  req.max_acceleration_scaling_factor = 1.0;
+  req.data.group_name = planning_group;
+  req.data.max_velocity_scaling_factor = 1.0;
+  req.data.max_acceleration_scaling_factor = 1.0;
   moveit::core::RobotState rstate(robot_model);
   rstate.setToDefaultValues();
-  moveit::core::robotStateToRobotStateMsg(rstate, req.start_state, false);
+  moveit::core::robotStateToRobotStateMsg(rstate, req.data.start_state, false);
 }
 
 void testutils::createPTPRequest(const std::string& planning_group, const moveit::core::RobotState& start_state,
                                  const moveit::core::RobotState& goal_state, planning_interface::MotionPlanRequest& req)
 {
   // valid motion plan request with goal in joint space
-  req.planner_id = "PTP";
-  req.group_name = planning_group;
-  req.max_velocity_scaling_factor = 0.5;
-  req.max_acceleration_scaling_factor = 0.5;
+  req.data.planner_id = "PTP";
+  req.data.group_name = planning_group;
+  req.data.max_velocity_scaling_factor = 0.5;
+  req.data.max_acceleration_scaling_factor = 0.5;
   // start state
-  moveit::core::robotStateToRobotStateMsg(start_state, req.start_state, false);
+  moveit::core::robotStateToRobotStateMsg(start_state, req.data.start_state, false);
   // goal state
-  req.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
+  req.data.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
       goal_state, goal_state.getRobotModel()->getJointModelGroup(planning_group)));
 }
 
@@ -1060,19 +1060,19 @@ bool testutils::generateTrajFromBlendTestData(
 
   // generate first trajectory
   planning_interface::MotionPlanRequest req_1;
-  req_1.group_name = group_name;
-  req_1.max_velocity_scaling_factor = 0.1;
-  req_1.max_acceleration_scaling_factor = 0.1;
+  req_1.data.group_name = group_name;
+  req_1.data.max_velocity_scaling_factor = 0.1;
+  req_1.data.max_acceleration_scaling_factor = 0.1;
   // start state
   moveit::core::RobotState start_state(robot_model);
   start_state.setToDefaultValues();
   start_state.setJointGroupPositions(group_name, data.start_position);
-  moveit::core::robotStateToRobotStateMsg(start_state, req_1.start_state, false);
+  moveit::core::robotStateToRobotStateMsg(start_state, req_1.data.start_state, false);
   // goal constraint
   moveit::core::RobotState goal_state_1(robot_model);
   goal_state_1.setToDefaultValues();
   goal_state_1.setJointGroupPositions(group_name, data.mid_position);
-  req_1.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
+  req_1.data.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
       goal_state_1, goal_state_1.getRobotModel()->getJointModelGroup(group_name)));
 
   // trajectory generation
@@ -1084,16 +1084,16 @@ bool testutils::generateTrajFromBlendTestData(
 
   // generate second LIN trajectory
   planning_interface::MotionPlanRequest req_2;
-  req_2.group_name = group_name;
-  req_2.max_velocity_scaling_factor = 0.1;
-  req_2.max_acceleration_scaling_factor = 0.1;
+  req_2.data.group_name = group_name;
+  req_2.data.max_velocity_scaling_factor = 0.1;
+  req_2.data.max_acceleration_scaling_factor = 0.1;
   // start state
-  moveit::core::robotStateToRobotStateMsg(goal_state_1, req_2.start_state, false);
+  moveit::core::robotStateToRobotStateMsg(goal_state_1, req_2.data.start_state, false);
   // goal state
   moveit::core::RobotState goal_state_2(robot_model);
   goal_state_2.setToDefaultValues();
   goal_state_2.setJointGroupPositions(group_name, data.end_position);
-  req_2.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
+  req_2.data.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
       goal_state_2, goal_state_2.getRobotModel()->getJointModelGroup(group_name)));
   // trajectory generation
   if (!tg->generate(scene, req_2, res_2, sampling_time_2))
@@ -1201,36 +1201,36 @@ void testutils::generateRequestMsgFromBlendTestData(const moveit::core::RobotMod
 {
   // motion plan request of first trajectory
   planning_interface::MotionPlanRequest req_1;
-  req_1.planner_id = planner_id;
-  req_1.group_name = group_name;
-  req_1.max_velocity_scaling_factor = 0.1;
-  req_1.max_acceleration_scaling_factor = 0.1;
+  req_1.data.planner_id = planner_id;
+  req_1.data.group_name = group_name;
+  req_1.data.max_velocity_scaling_factor = 0.1;
+  req_1.data.max_acceleration_scaling_factor = 0.1;
   // start state
   moveit::core::RobotState start_state(robot_model);
   start_state.setToDefaultValues();
   start_state.setJointGroupPositions(group_name, data.start_position);
-  moveit::core::robotStateToRobotStateMsg(start_state, req_1.start_state, false);
+  moveit::core::robotStateToRobotStateMsg(start_state, req_1.data.start_state, false);
   // goal constraint
   moveit::core::RobotState goal_state_1(robot_model);
   goal_state_1.setToDefaultValues();
   goal_state_1.setJointGroupPositions(group_name, data.mid_position);
-  req_1.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
+  req_1.data.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
       goal_state_1, goal_state_1.getRobotModel()->getJointModelGroup(group_name)));
 
   // motion plan request of second trajectory
   planning_interface::MotionPlanRequest req_2;
-  req_2.planner_id = planner_id;
-  req_2.group_name = group_name;
-  req_2.max_velocity_scaling_factor = 0.1;
-  req_2.max_acceleration_scaling_factor = 0.1;
+  req_2.data.planner_id = planner_id;
+  req_2.data.group_name = group_name;
+  req_2.data.max_velocity_scaling_factor = 0.1;
+  req_2.data.max_acceleration_scaling_factor = 0.1;
   // start state
-  // moveit::core::robotStateToRobotStateMsg(goal_state_1, req_2.start_state,
+  // moveit::core::robotStateToRobotStateMsg(goal_state_1, req_2.data.start_state,
   // false);
   // goal state
   moveit::core::RobotState goal_state_2(robot_model);
   goal_state_2.setToDefaultValues();
   goal_state_2.setJointGroupPositions(group_name, data.end_position);
-  req_2.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
+  req_2.data.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
       goal_state_2, goal_state_2.getRobotModel()->getJointModelGroup(group_name)));
 
   // select a proper blending radius
@@ -1246,9 +1246,9 @@ void testutils::generateRequestMsgFromBlendTestData(const moveit::core::RobotMod
   double blend_radius = 0.5 * std::min(dis_1, dis_2);
 
   moveit_msgs::msg::MotionSequenceItem blend_req_1, blend_req_2;
-  blend_req_1.req = req_1;
+  blend_req_1.req = req_1.data;
   blend_req_1.blend_radius = blend_radius;
-  blend_req_2.req = req_2;
+  blend_req_2.req = req_2.data;
   blend_req_2.blend_radius = 0.0;
 
   req_list.items.push_back(blend_req_1);

@@ -123,7 +123,7 @@ void CommandPlanner::getPlanningAlgorithms(std::vector<std::string>& algs) const
 
 planning_interface::PlanningContextPtr
 CommandPlanner::getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                   const moveit_msgs::msg::MotionPlanRequest& req,
+                                   const planning_interface::MotionPlanRequest& req,
                                    moveit_msgs::msg::MoveItErrorCodes& error_code) const
 {
   // TODO(henningkayser): print req
@@ -133,16 +133,18 @@ CommandPlanner::getPlanningContext(const planning_scene::PlanningSceneConstPtr& 
   // Check that a loaded for this request exists
   if (!canServiceRequest(req))
   {
-    RCLCPP_ERROR_STREAM(LOGGER, "No ContextLoader for planner_id '" << req.planner_id.c_str()
+    RCLCPP_ERROR_STREAM(LOGGER, "No ContextLoader for planner_id '" << req.data.planner_id.c_str()
                                                                     << "' found. Planning not possible.");
     return nullptr;
   }
 
   planning_interface::PlanningContextPtr planning_context;
 
-  if (context_loader_map_.at(req.planner_id)->loadContext(planning_context, req.planner_id, req.group_name))
+  if (context_loader_map_.at(req.data.planner_id)
+          ->loadContext(planning_context, req.data.planner_id, req.data.group_name))
   {
-    RCLCPP_DEBUG_STREAM(LOGGER, "Found planning context loader for " << req.planner_id << " group:" << req.group_name);
+    RCLCPP_DEBUG_STREAM(LOGGER, "Found planning context loader for " << req.data.planner_id
+                                                                     << " group:" << req.data.group_name);
     planning_context->setMotionPlanRequest(req);
     planning_context->setPlanningScene(planning_scene);
     return planning_context;
@@ -154,9 +156,9 @@ CommandPlanner::getPlanningContext(const planning_scene::PlanningSceneConstPtr& 
   }
 }
 
-bool CommandPlanner::canServiceRequest(const moveit_msgs::msg::MotionPlanRequest& req) const
+bool CommandPlanner::canServiceRequest(const ::planning_interface::MotionPlanRequest& req) const
 {
-  return context_loader_map_.find(req.planner_id) != context_loader_map_.end();
+  return context_loader_map_.find(req.data.planner_id) != context_loader_map_.end();
 }
 
 void CommandPlanner::registerContextLoader(

@@ -64,26 +64,26 @@ public:
       planner configurations are used as specified in \e pconfig instead of reading them from ROS parameters
      */
   OMPLInterface(const moveit::core::RobotModelConstPtr& robot_model,
-                const planning_interface::PlannerConfigurationMap& pconfig, const rclcpp::Node::SharedPtr& node,
+                const ::planning_interface::PlannerConfigurationMap& pconfig, const rclcpp::Node::SharedPtr& node,
                 const std::string& parameter_namespace);
 
   virtual ~OMPLInterface();
 
   /** @brief Specify configurations for the planners.
       @param pconfig Configurations for the different planners */
-  void setPlannerConfigurations(const planning_interface::PlannerConfigurationMap& pconfig);
+  void setPlannerConfigurations(const ::planning_interface::PlannerConfigurationMap& pconfig);
 
   /** @brief Get the configurations for the planners that are already loaded
       @param pconfig Configurations for the different planners */
-  const planning_interface::PlannerConfigurationMap& getPlannerConfigurations() const
+  const ::planning_interface::PlannerConfigurationMap& getPlannerConfigurations() const
   {
     return context_manager_.getPlannerConfigurations();
   }
 
   ModelBasedPlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                  const planning_interface::MotionPlanRequest& req) const;
+                                                  const ::planning_interface::MotionPlanRequest& req) const;
   ModelBasedPlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                  const planning_interface::MotionPlanRequest& req,
+                                                  const ::planning_interface::MotionPlanRequest& req,
                                                   moveit_msgs::msg::MoveItErrorCodes& error_code) const;
 
   const PlanningContextManager& getPlanningContextManager() const
@@ -123,7 +123,7 @@ protected:
   /** @brief Load planner configurations for specified group into planner_config */
   bool loadPlannerConfiguration(const std::string& group_name, const std::string& planner_id,
                                 const std::map<std::string, std::string>& group_params,
-                                planning_interface::PlannerConfigurationSettings& planner_config);
+                                ::planning_interface::PlannerConfigurationSettings& planner_config);
 
   /** @brief Configure the planners*/
   void loadPlannerConfigurations();
@@ -132,7 +132,7 @@ protected:
   void loadConstraintSamplers();
 
   /** \brief Configure the OMPL planning context for a new planning request */
-  ModelBasedPlanningContextPtr prepareForSolve(const planning_interface::MotionPlanRequest& req,
+  ModelBasedPlanningContextPtr prepareForSolve(const ::planning_interface::MotionPlanRequest& req,
                                                const planning_scene::PlanningSceneConstPtr& planning_scene,
                                                moveit_msgs::msg::MoveItErrorCodes* error_code, unsigned int* attempts,
                                                double* timeout) const;

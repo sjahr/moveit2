@@ -250,11 +250,11 @@ void TrajectoryGenerator::checkGoalConstraints(
 
 void TrajectoryGenerator::validateRequest(const planning_interface::MotionPlanRequest& req) const
 {
-  checkVelocityScaling(req.max_velocity_scaling_factor);
-  checkAccelerationScaling(req.max_acceleration_scaling_factor);
-  checkForValidGroupName(req.group_name);
-  checkStartState(req.start_state, req.group_name);
-  checkGoalConstraints(req.goal_constraints, req.start_state.joint_state.name, req.group_name);
+  checkVelocityScaling(req.data.max_velocity_scaling_factor);
+  checkAccelerationScaling(req.data.max_acceleration_scaling_factor);
+  checkForValidGroupName(req.data.group_name);
+  checkStartState(req.data.start_state, req.data.group_name);
+  checkGoalConstraints(req.data.goal_constraints, req.data.start_state.joint_state.name, req.data.group_name);
 }
 
 void TrajectoryGenerator::setSuccessResponse(const moveit::core::RobotState& start_state, const std::string& group_name,
@@ -304,7 +304,7 @@ bool TrajectoryGenerator::generate(const planning_scene::PlanningSceneConstPtr& 
                                    const planning_interface::MotionPlanRequest& req,
                                    planning_interface::MotionPlanResponse& res, double sampling_time)
 {
-  RCLCPP_INFO_STREAM(LOGGER, "Generating " << req.planner_id << " trajectory...");
+  RCLCPP_INFO_STREAM(LOGGER, "Generating " << req.data.planner_id << " trajectory...");
   rclcpp::Time planning_begin = clock_->now();
 
   try
@@ -358,8 +358,8 @@ bool TrajectoryGenerator::generate(const planning_scene::PlanningSceneConstPtr& 
   }
 
   moveit::core::RobotState start_state(scene->getCurrentState());
-  moveit::core::robotStateMsgToRobotState(req.start_state, start_state, true);
-  setSuccessResponse(start_state, req.group_name, joint_trajectory, planning_begin, res);
+  moveit::core::robotStateMsgToRobotState(req.data.start_state, start_state, true);
+  setSuccessResponse(start_state, req.data.group_name, joint_trajectory, planning_begin, res);
   return true;
 }
 

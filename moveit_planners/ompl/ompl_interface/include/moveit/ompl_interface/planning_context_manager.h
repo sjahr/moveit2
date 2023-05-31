@@ -85,10 +85,10 @@ public:
 
   /** @brief Specify configurations for the planners.
       @param pconfig Configurations for the different planners */
-  void setPlannerConfigurations(const planning_interface::PlannerConfigurationMap& pconfig);
+  void setPlannerConfigurations(const ::planning_interface::PlannerConfigurationMap& pconfig);
 
   /** @brief Return the previously set planner configurations */
-  const planning_interface::PlannerConfigurationMap& getPlannerConfigurations() const
+  const ::planning_interface::PlannerConfigurationMap& getPlannerConfigurations() const
   {
     return planner_configs_;
   }
@@ -179,7 +179,7 @@ public:
    *
    * */
   ModelBasedPlanningContextPtr getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                                  const planning_interface::MotionPlanRequest& req,
+                                                  const ::planning_interface::MotionPlanRequest& req,
                                                   moveit_msgs::msg::MoveItErrorCodes& error_code,
                                                   const rclcpp::Node::SharedPtr& node,
                                                   bool use_constraints_approximations) const;
@@ -216,13 +216,13 @@ protected:
   void registerPlannerAllocatorHelper(const std::string& planner_id);
 
   /** \brief This is the function that constructs new planning contexts if no previous ones exist that are suitable */
-  ModelBasedPlanningContextPtr getPlanningContext(const planning_interface::PlannerConfigurationSettings& config,
+  ModelBasedPlanningContextPtr getPlanningContext(const ::planning_interface::PlannerConfigurationSettings& config,
                                                   const ModelBasedStateSpaceFactoryPtr& factory,
-                                                  const moveit_msgs::msg::MotionPlanRequest& req) const;
+                                                  const ::planning_interface::MotionPlanRequest& req) const;
 
   const ModelBasedStateSpaceFactoryPtr& getStateSpaceFactory(const std::string& factory_type) const;
   const ModelBasedStateSpaceFactoryPtr& getStateSpaceFactory(const std::string& group_name,
-                                                             const moveit_msgs::msg::MotionPlanRequest& req) const;
+                                                             const ::planning_interface::MotionPlanRequest& req) const;
 
   /** \brief The kinematic model for which motion plans are computed */
   moveit::core::RobotModelConstPtr robot_model_;
@@ -237,7 +237,7 @@ protected:
       be of the form "group_name[config_name]" if there are
       particular configurations specified for a group, or of the
       form "group_name" if default settings are to be used. */
-  planning_interface::PlannerConfigurationMap planner_configs_;
+  ::planning_interface::PlannerConfigurationMap planner_configs_;
 
   /// maximum number of states to sample in the goal region for any planning request (when such sampling is possible)
   unsigned int max_goal_samples_;

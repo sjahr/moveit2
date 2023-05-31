@@ -72,20 +72,20 @@ public:
 
     // get the specified start state
     moveit::core::RobotState start_state = planning_scene->getCurrentState();
-    moveit::core::robotStateMsgToRobotState(planning_scene->getTransforms(), req.start_state, start_state);
+    moveit::core::robotStateMsgToRobotState(planning_scene->getTransforms(), req.data.start_state, start_state);
 
     // if the start state is otherwise valid but does not meet path constraints
-    if (planning_scene->isStateValid(start_state, req.group_name) &&
-        !planning_scene->isStateValid(start_state, req.path_constraints, req.group_name))
+    if (planning_scene->isStateValid(start_state, req.data.group_name) &&
+        !planning_scene->isStateValid(start_state, req.data.path_constraints, req.data.group_name))
     {
       RCLCPP_INFO(LOGGER, "Path constraints not satisfied for start state...");
-      planning_scene->isStateValid(start_state, req.path_constraints, req.group_name, true);
+      planning_scene->isStateValid(start_state, req.data.path_constraints, req.data.group_name, true);
       RCLCPP_INFO(LOGGER, "Planning to path constraints...");
 
       planning_interface::MotionPlanRequest req2 = req;
-      req2.goal_constraints.resize(1);
-      req2.goal_constraints[0] = req.path_constraints;
-      req2.path_constraints = moveit_msgs::msg::Constraints();
+      req2.data.goal_constraints.resize(1);
+      req2.data.goal_constraints[0] = req.data.path_constraints;
+      req2.data.path_constraints = moveit_msgs::msg::Constraints();
       planning_interface::MotionPlanResponse res2;
       // we call the planner for this additional request, but we do not want to include potential
       // index information from that call
@@ -100,7 +100,7 @@ public:
         RCLCPP_INFO(LOGGER, "Planned to path constraints. Resuming original planning request.");
 
         // extract the last state of the computed motion plan and set it as the new start state
-        moveit::core::robotStateToRobotStateMsg(res2.trajectory->getLastWayPoint(), req3.start_state);
+        moveit::core::robotStateToRobotStateMsg(res2.trajectory->getLastWayPoint(), req3.data.start_state);
         bool solved2 = planner(planning_scene, req3, res, state_cost_function);
         res.planning_time += res2.planning_time;
 

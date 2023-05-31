@@ -138,7 +138,8 @@ protected:
       // for first)
       if (index > 0)
       {
-        moveit::core::robotStateToRobotStateMsg(responses[index - 1].trajectory->getLastWayPoint(), req.start_state);
+        moveit::core::robotStateToRobotStateMsg(responses[index - 1].trajectory->getLastWayPoint(),
+                                                req.data.start_state);
       }
       // generate trajectory
       planning_interface::MotionPlanResponse resp;
@@ -314,7 +315,7 @@ TEST_F(TrajectoryBlenderTransitionWindowTest, testDifferentSamplingTimes)
     // for first)
     if (index > 0)
     {
-      moveit::core::robotStateToRobotStateMsg(responses[index - 1].trajectory->getLastWayPoint(), req.start_state);
+      moveit::core::robotStateToRobotStateMsg(responses[index - 1].trajectory->getLastWayPoint(), req.data.start_state);
       sampling_time_ *= 2;
     }
     // generate trajectory

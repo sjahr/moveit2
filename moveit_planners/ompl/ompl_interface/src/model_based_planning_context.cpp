@@ -75,7 +75,7 @@ static const rclcpp::Logger LOGGER = rclcpp::get_logger("moveit.ompl_planning.mo
 
 ompl_interface::ModelBasedPlanningContext::ModelBasedPlanningContext(const std::string& name,
                                                                      const ModelBasedPlanningContextSpecification& spec)
-  : planning_interface::PlanningContext(name, spec.state_space_->getJointModelGroup()->getName())
+  : ::planning_interface::PlanningContext(name, spec.state_space_->getJointModelGroup()->getName())
   , spec_(spec)
   , complete_initial_robot_state_(spec.state_space_->getRobotModel())
   , ompl_simple_setup_(spec.ompl_simple_setup_)
@@ -780,13 +780,13 @@ void ompl_interface::ModelBasedPlanningContext::postSolve()
 
 bool ompl_interface::ModelBasedPlanningContext::solve(planning_interface::MotionPlanResponse& res)
 {
-  res.error_code = solve(request_.allowed_planning_time, request_.num_planning_attempts);
+  res.error_code = solve(request_.data.allowed_planning_time, request_.data.num_planning_attempts);
   if (res.error_code.val == moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
   {
     double ptime = getLastPlanTime();
     if (simplify_solutions_)
     {
-      simplifySolution(request_.allowed_planning_time - ptime);
+      simplifySolution(request_.data.allowed_planning_time - ptime);
       ptime += getLastSimplifyTime();
     }
 
@@ -814,7 +814,7 @@ bool ompl_interface::ModelBasedPlanningContext::solve(planning_interface::Motion
 bool ompl_interface::ModelBasedPlanningContext::solve(planning_interface::MotionPlanDetailedResponse& res)
 {
   moveit_msgs::msg::MoveItErrorCodes moveit_result =
-      solve(request_.allowed_planning_time, request_.num_planning_attempts);
+      solve(request_.data.allowed_planning_time, request_.data.num_planning_attempts);
   if (moveit_result.val == moveit_msgs::msg::MoveItErrorCodes::SUCCESS)
   {
     res.trajectory.reserve(3);
@@ -830,7 +830,7 @@ bool ompl_interface::ModelBasedPlanningContext::solve(planning_interface::Motion
     // simplify solution if time remains
     if (simplify_solutions_)
     {
-      simplifySolution(request_.allowed_planning_time - ptime);
+      simplifySolution(request_.data.allowed_planning_time - ptime);
       res.processing_time.push_back(getLastSimplifyTime());
       res.description.emplace_back("simplify");
       res.trajectory.resize(res.trajectory.size() + 1);

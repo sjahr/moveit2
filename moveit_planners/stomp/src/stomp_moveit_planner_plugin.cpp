@@ -90,7 +90,7 @@ public:
     auto const params = param_listener_->get_params();
 
     std::shared_ptr<StompPlanningContext> planning_context =
-        std::make_shared<StompPlanningContext>("STOMP", req.group_name, params);
+        std::make_shared<StompPlanningContext>("STOMP", req.data.group_name, params);
     planning_context->setPlanningScene(planning_scene);
     planning_context->setMotionPlanRequest(req);
 
@@ -107,19 +107,19 @@ public:
 
   bool canServiceRequest(const MotionPlanRequest& req) const override
   {
-    if (req.goal_constraints.empty())
+    if (req.data.goal_constraints.empty())
     {
       RCLCPP_ERROR(LOGGER, "Invalid goal constraints");
       return false;
     }
 
-    if (req.group_name.empty() || !robot_model_->hasJointModelGroup(req.group_name))
+    if (req.data.group_name.empty() || !robot_model_->hasJointModelGroup(req.data.group_name))
     {
-      RCLCPP_ERROR(LOGGER, "Invalid joint group '%s'", req.group_name.c_str());
+      RCLCPP_ERROR(LOGGER, "Invalid joint group '%s'", req.data.group_name.c_str());
       return false;
     }
 
-    if (!req.reference_trajectories.empty())
+    if (!req.data.reference_trajectories.empty())
     {
       RCLCPP_WARN(LOGGER, "Ignoring reference trajectories - not implemented!");
     }

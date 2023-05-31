@@ -40,7 +40,7 @@
 namespace ompl_interface
 {
 PlanningInterfaceObjective::PlanningInterfaceObjective(const ompl::base::SpaceInformationPtr& si,
-                                                       const planning_interface::StateCostFn& state_cost_function)
+                                                       const ::planning_interface::StateCostFn& state_cost_function)
   : OptimizationObjective(si), state_cost_function_(state_cost_function)
 {
   description_ = "Planning Interface Objective";

@@ -67,22 +67,22 @@ void TrajectoryGeneratorLIN::extractMotionPlanInfo(const planning_scene::Plannin
 {
   RCLCPP_DEBUG(LOGGER, "Extract necessary information from motion plan request.");
 
-  info.group_name = req.group_name;
+  info.group_name = req.data.group_name;
   std::string frame_id{ robot_model_->getModelFrame() };
 
   // goal given in joint space
-  if (!req.goal_constraints.front().joint_constraints.empty())
+  if (!req.data.goal_constraints.front().joint_constraints.empty())
   {
-    info.link_name = getSolverTipFrame(robot_model_->getJointModelGroup(req.group_name));
+    info.link_name = getSolverTipFrame(robot_model_->getJointModelGroup(req.data.group_name));
 
-    if (req.goal_constraints.front().joint_constraints.size() !=
-        robot_model_->getJointModelGroup(req.group_name)->getActiveJointModelNames().size())
+    if (req.data.goal_constraints.front().joint_constraints.size() !=
+        robot_model_->getJointModelGroup(req.data.group_name)->getActiveJointModelNames().size())
     {
       std::ostringstream os;
       os << "Number of joints in goal does not match number of joints of group "
             "(Number joints goal: "
-         << req.goal_constraints.front().joint_constraints.size() << " | Number of joints of group: "
-         << robot_model_->getJointModelGroup(req.group_name)->getActiveJointModelNames().size() << ')';
+         << req.data.goal_constraints.front().joint_constraints.size() << " | Number of joints of group: "
+         << robot_model_->getJointModelGroup(req.data.group_name)->getActiveJointModelNames().size() << ')';
       throw JointNumberMismatch(os.str());
     }
     // initializing all joints of the model
@@ -91,7 +91,7 @@ void TrajectoryGeneratorLIN::extractMotionPlanInfo(const planning_scene::Plannin
       info.goal_joint_position[joint_name] = 0;
     }
 
-    for (const auto& joint_item : req.goal_constraints.front().joint_constraints)
+    for (const auto& joint_item : req.data.goal_constraints.front().joint_constraints)
     {
       info.goal_joint_position[joint_item.joint_name] = joint_item.position;
     }
@@ -103,9 +103,9 @@ void TrajectoryGeneratorLIN::extractMotionPlanInfo(const planning_scene::Plannin
   // goal given in Cartesian space
   else
   {
-    info.link_name = req.goal_constraints.front().position_constraints.front().link_name;
-    if (req.goal_constraints.front().position_constraints.front().header.frame_id.empty() ||
-        req.goal_constraints.front().orientation_constraints.front().header.frame_id.empty())
+    info.link_name = req.data.goal_constraints.front().position_constraints.front().link_name;
+    if (req.data.goal_constraints.front().position_constraints.front().header.frame_id.empty() ||
+        req.data.goal_constraints.front().orientation_constraints.front().header.frame_id.empty())
     {
       RCLCPP_WARN(LOGGER, "Frame id is not set in position/orientation constraints of "
                           "goal. Use model frame as default");
@@ -113,24 +113,25 @@ void TrajectoryGeneratorLIN::extractMotionPlanInfo(const planning_scene::Plannin
     }
     else
     {
-      frame_id = req.goal_constraints.front().position_constraints.front().header.frame_id;
+      frame_id = req.data.goal_constraints.front().position_constraints.front().header.frame_id;
     }
-    info.goal_pose = getConstraintPose(req.goal_constraints.front());
+    info.goal_pose = getConstraintPose(req.data.goal_constraints.front());
   }
 
-  assert(req.start_state.joint_state.name.size() == req.start_state.joint_state.position.size());
-  for (const auto& joint_name : robot_model_->getJointModelGroup(req.group_name)->getActiveJointModelNames())
+  assert(req.data.start_state.joint_state.name.size() == req.data.start_state.joint_state.position.size());
+  for (const auto& joint_name : robot_model_->getJointModelGroup(req.data.group_name)->getActiveJointModelNames())
   {
-    auto it{ std::find(req.start_state.joint_state.name.cbegin(), req.start_state.joint_state.name.cend(), joint_name) };
-    if (it == req.start_state.joint_state.name.cend())
+    auto it{ std::find(req.data.start_state.joint_state.name.cbegin(), req.data.start_state.joint_state.name.cend(),
+                       joint_name) };
+    if (it == req.data.start_state.joint_state.name.cend())
     {
       std::ostringstream os;
-      os << "Could not find joint \"" << joint_name << "\" of group \"" << req.group_name
+      os << "Could not find joint \"" << joint_name << "\" of group \"" << req.data.group_name
          << "\" in start state of request";
       throw LinJointMissingInStartState(os.str());
     }
-    size_t index = it - req.start_state.joint_state.name.cbegin();
-    info.start_joint_position[joint_name] = req.start_state.joint_state.position[index];
+    size_t index = it - req.data.start_state.joint_state.name.cbegin();
+    info.start_joint_position[joint_name] = req.data.start_state.joint_state.position[index];
   }
 
   // Ignored return value because at this point the function should always
@@ -156,8 +157,8 @@ void TrajectoryGeneratorLIN::plan(const planning_scene::PlanningSceneConstPtr& s
   std::unique_ptr<KDL::Path> path(setPathLIN(plan_info.start_pose, plan_info.goal_pose));
 
   // create velocity profile
-  std::unique_ptr<KDL::VelocityProfile> vp(
-      cartesianTrapVelocityProfile(req.max_velocity_scaling_factor, req.max_acceleration_scaling_factor, path));
+  std::unique_ptr<KDL::VelocityProfile> vp(cartesianTrapVelocityProfile(
+      req.data.max_velocity_scaling_factor, req.data.max_acceleration_scaling_factor, path));
 
   // combine path and velocity profile into Cartesian trajectory
   // with the third parameter set to false, KDL::Trajectory_Segment does not

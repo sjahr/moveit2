@@ -81,10 +81,10 @@ public:
 
     // get the specified start state
     moveit::core::RobotState start_state = planning_scene->getCurrentState();
-    moveit::core::robotStateMsgToRobotState(planning_scene->getTransforms(), req.start_state, start_state);
+    moveit::core::robotStateMsgToRobotState(planning_scene->getTransforms(), req.data.start_state, start_state);
 
     collision_detection::CollisionRequest creq;
-    creq.group_name = req.group_name;
+    creq.group_name = req.data.group_name;
     collision_detection::CollisionResult cres;
     planning_scene->checkCollision(creq, cres, start_state);
     if (cres.collision)
@@ -108,8 +108,8 @@ public:
       random_numbers::RandomNumberGenerator& rng = prefix_state->getRandomNumberGenerator();
 
       const std::vector<const moveit::core::JointModel*>& jmodels =
-          planning_scene->getRobotModel()->hasJointModelGroup(req.group_name) ?
-              planning_scene->getRobotModel()->getJointModelGroup(req.group_name)->getJointModels() :
+          planning_scene->getRobotModel()->hasJointModelGroup(req.data.group_name) ?
+              planning_scene->getRobotModel()->getJointModelGroup(req.data.group_name)->getJointModels() :
               planning_scene->getRobotModel()->getJointModels();
 
       bool found = false;
@@ -136,7 +136,7 @@ public:
       if (found)
       {
         planning_interface::MotionPlanRequest req2 = req;
-        moveit::core::robotStateToRobotStateMsg(start_state, req2.start_state);
+        moveit::core::robotStateToRobotStateMsg(start_state, req2.data.start_state);
         bool solved = planner(planning_scene, req2, res, state_cost_function);
         if (solved && !res.trajectory->empty())
         {

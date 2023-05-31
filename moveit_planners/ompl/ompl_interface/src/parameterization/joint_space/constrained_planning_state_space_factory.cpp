@@ -46,14 +46,14 @@ ConstrainedPlanningStateSpaceFactory::ConstrainedPlanningStateSpaceFactory() : M
 }
 
 int ConstrainedPlanningStateSpaceFactory::canRepresentProblem(
-    const std::string& /*group*/, const moveit_msgs::msg::MotionPlanRequest& req,
+    const std::string& /*group*/, const ::planning_interface::MotionPlanRequest& req,
     const moveit::core::RobotModelConstPtr& /*robot_model*/) const
 {
   // If we have exactly one position or orientation constraint, prefer the constrained planning state space
   auto num_constraints =
-      req.path_constraints.position_constraints.size() + req.path_constraints.orientation_constraints.size();
-  if (num_constraints == 1 && req.path_constraints.joint_constraints.empty() &&
-      req.path_constraints.visibility_constraints.empty())
+      req.data.path_constraints.position_constraints.size() + req.data.path_constraints.orientation_constraints.size();
+  if (num_constraints == 1 && req.data.path_constraints.joint_constraints.empty() &&
+      req.data.path_constraints.visibility_constraints.empty())
   {
     return 200;
   }

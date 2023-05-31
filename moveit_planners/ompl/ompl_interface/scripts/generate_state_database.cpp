@@ -142,11 +142,11 @@ void computeDB(const rclcpp::Node::SharedPtr& node, const planning_scene::Planni
   scene->getCurrentStateNonConst().update();
 
   ompl_interface::OMPLInterface ompl_interface(scene->getRobotModel(), node, "ompl");
-  planning_interface::MotionPlanRequest req;
-  req.group_name = params.planning_group;
-  req.path_constraints = params.constraints;
-  moveit::core::robotStateToRobotStateMsg(scene->getCurrentState(), req.start_state);
-  req.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
+  ::planning_interface::MotionPlanRequest req;
+  req.data.group_name = params.planning_group;
+  req.data.path_constraints = params.constraints;
+  moveit::core::robotStateToRobotStateMsg(scene->getCurrentState(), req.data.start_state);
+  req.data.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(
       scene->getCurrentState(), scene->getRobotModel()->getJointModelGroup(params.planning_group)));
 
   ompl_interface::ModelBasedPlanningContextPtr context = ompl_interface.getPlanningContext(scene, req);

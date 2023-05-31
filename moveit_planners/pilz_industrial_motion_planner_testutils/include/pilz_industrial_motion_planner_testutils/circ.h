@@ -84,7 +84,7 @@ template <class StartType, class AuxiliaryType, class GoalType>
 inline planning_interface::MotionPlanRequest Circ<StartType, AuxiliaryType, GoalType>::toRequest() const
 {
   planning_interface::MotionPlanRequest req{ BaseCmd<StartType, GoalType>::toRequest() };
-  req.path_constraints = auxiliary_.toPathConstraints();
+  req.data.path_constraints = auxiliary_.toPathConstraints();
 
   return req;
 }

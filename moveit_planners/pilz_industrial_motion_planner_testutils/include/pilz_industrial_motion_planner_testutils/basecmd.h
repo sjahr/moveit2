@@ -112,14 +112,14 @@ template <class StartType, class GoalType>
 planning_interface::MotionPlanRequest BaseCmd<StartType, GoalType>::toRequest() const
 {
   planning_interface::MotionPlanRequest req;
-  req.planner_id = getPlannerId();
-  req.group_name = planning_group_;
+  req.data.planner_id = getPlannerId();
+  req.data.group_name = planning_group_;
 
-  req.max_velocity_scaling_factor = vel_scale_;
-  req.max_acceleration_scaling_factor = acc_scale_;
+  req.data.max_velocity_scaling_factor = vel_scale_;
+  req.data.max_acceleration_scaling_factor = acc_scale_;
 
-  req.start_state = start_.toMoveitMsgsRobotState();
-  req.goal_constraints.push_back(goal_.toGoalConstraints());
+  req.data.start_state = start_.toMoveitMsgsRobotState();
+  req.data.goal_constraints.push_back(goal_.toGoalConstraints());
 
   return req;
 }

@@ -65,8 +65,8 @@ public:
   {
     RCLCPP_DEBUG(LOGGER, "Running '%s'", getDescription().c_str());
     planning_interface::MotionPlanRequest modified = req;
-    kinematic_constraints::resolveConstraintFrames(planning_scene->getCurrentState(), modified.path_constraints);
-    for (moveit_msgs::msg::Constraints& constraint : modified.goal_constraints)
+    kinematic_constraints::resolveConstraintFrames(planning_scene->getCurrentState(), modified.data.path_constraints);
+    for (moveit_msgs::msg::Constraints& constraint : modified.data.goal_constraints)
       kinematic_constraints::resolveConstraintFrames(planning_scene->getCurrentState(), constraint);
     return planner(planning_scene, modified, res, state_cost_function);
   }

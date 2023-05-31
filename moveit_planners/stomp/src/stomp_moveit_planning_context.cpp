@@ -88,17 +88,17 @@ bool extractSeedTrajectory(const planning_interface::MotionPlanRequest& req,
                            const moveit::core::RobotModelConstPtr& robot_model,
                            robot_trajectory::RobotTrajectoryPtr& seed)
 {
-  if (req.trajectory_constraints.constraints.empty())
+  if (req.data.trajectory_constraints.constraints.empty())
   {
     return false;
   }
 
-  const auto* joint_group = robot_model->getJointModelGroup(req.group_name);
+  const auto* joint_group = robot_model->getJointModelGroup(req.data.group_name);
   const auto& names = joint_group->getActiveJointModelNames();
   const auto dof = names.size();
 
   trajectory_msgs::msg::JointTrajectory seed_traj;
-  const auto& constraints = req.trajectory_constraints.constraints;  // alias to keep names short
+  const auto& constraints = req.data.trajectory_constraints.constraints;  // alias to keep names short
   // Test the first point to ensure that it has all of the joints required
   for (size_t i = 0; i < constraints.size(); ++i)
   {
@@ -128,7 +128,7 @@ bool extractSeedTrajectory(const planning_interface::MotionPlanRequest& req,
   seed_traj.joint_names = names;
 
   moveit::core::RobotState robot_state(robot_model);
-  moveit::core::robotStateMsgToRobotState(req.start_state, robot_state);
+  moveit::core::robotStateMsgToRobotState(req.data.start_state, robot_state);
   seed = std::make_shared<robot_trajectory::RobotTrajectory>(robot_model, joint_group);
   seed->setRobotTrajectoryMsg(robot_state, seed_traj);
 
@@ -145,7 +145,7 @@ stomp::TaskPtr createStompTask(const stomp::StompConfiguration& config, StompPla
   // Check if we do have path constraints
   const auto& req = context.getMotionPlanRequest();
   kinematic_constraints::KinematicConstraintSet constraints(planning_scene->getRobotModel());
-  constraints.add(req.path_constraints, planning_scene->getTransforms());
+  constraints.add(req.data.path_constraints, planning_scene->getTransforms());
 
   // Create callback functions for STOMP task
   // Cost, noise and filter functions are provided for planning.
@@ -217,10 +217,11 @@ bool StompPlanningContext::solve(planning_interface::MotionPlanResponse& res)
 
   // Extract start and goal states
   const auto& req = getMotionPlanRequest();
-  const moveit::core::RobotState start_state(*getPlanningScene()->getCurrentStateUpdated(req.start_state));
+  const moveit::core::RobotState start_state(*getPlanningScene()->getCurrentStateUpdated(req.data.start_state));
   moveit::core::RobotState goal_state(start_state);
   constraint_samplers::ConstraintSamplerManager sampler_manager;
-  auto goal_sampler = sampler_manager.selectSampler(getPlanningScene(), getGroupName(), req.goal_constraints.at(0));
+  auto goal_sampler =
+      sampler_manager.selectSampler(getPlanningScene(), getGroupName(), req.data.goal_constraints.at(0));
   if (!goal_sampler || !goal_sampler->sample(goal_state))
   {
     res.error_code.val = moveit_msgs::msg::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
@@ -243,7 +244,7 @@ bool StompPlanningContext::solve(planning_interface::MotionPlanResponse& res)
   bool finished = false;
   auto timeout_future = std::async(std::launch::async, [&, stomp = stomp_]() {
     std::unique_lock<std::mutex> lock(cv_mutex);
-    cv.wait_for(lock, std::chrono::duration<double>(req.allowed_planning_time), [&finished] { return finished; });
+    cv.wait_for(lock, std::chrono::duration<double>(req.data.allowed_planning_time), [&finished] { return finished; });
     if (!finished)
     {
       stomp->cancel();

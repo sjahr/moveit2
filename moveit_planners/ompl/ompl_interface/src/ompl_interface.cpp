@@ -59,7 +59,7 @@ OMPLInterface::OMPLInterface(const moveit::core::RobotModelConstPtr& robot_model
 }
 
 OMPLInterface::OMPLInterface(const moveit::core::RobotModelConstPtr& robot_model,
-                             const planning_interface::PlannerConfigurationMap& pconfig,
+                             const ::planning_interface::PlannerConfigurationMap& pconfig,
                              const rclcpp::Node::SharedPtr& node, const std::string& parameter_namespace)
   : node_(node)
   , parameter_namespace_(parameter_namespace)
@@ -75,16 +75,16 @@ OMPLInterface::OMPLInterface(const moveit::core::RobotModelConstPtr& robot_model
 
 OMPLInterface::~OMPLInterface() = default;
 
-void OMPLInterface::setPlannerConfigurations(const planning_interface::PlannerConfigurationMap& pconfig)
+void OMPLInterface::setPlannerConfigurations(const ::planning_interface::PlannerConfigurationMap& pconfig)
 {
-  planning_interface::PlannerConfigurationMap pconfig2 = pconfig;
+  ::planning_interface::PlannerConfigurationMap pconfig2 = pconfig;
 
   // construct default configurations for planning groups that don't have configs already passed in
   for (const moveit::core::JointModelGroup* group : robot_model_->getJointModelGroups())
   {
     if (pconfig.find(group->getName()) == pconfig.end())
     {
-      planning_interface::PlannerConfigurationSettings empty;
+      ::planning_interface::PlannerConfigurationSettings empty;
       empty.name = empty.group = group->getName();
       pconfig2[empty.name] = empty;
     }
@@ -95,7 +95,7 @@ void OMPLInterface::setPlannerConfigurations(const planning_interface::PlannerCo
 
 ModelBasedPlanningContextPtr
 OMPLInterface::getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                  const planning_interface::MotionPlanRequest& req) const
+                                  const ::planning_interface::MotionPlanRequest& req) const
 {
   moveit_msgs::msg::MoveItErrorCodes dummy;
   return getPlanningContext(planning_scene, req, dummy);
@@ -103,7 +103,7 @@ OMPLInterface::getPlanningContext(const planning_scene::PlanningSceneConstPtr& p
 
 ModelBasedPlanningContextPtr
 OMPLInterface::getPlanningContext(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                                  const planning_interface::MotionPlanRequest& req,
+                                  const ::planning_interface::MotionPlanRequest& req,
                                   moveit_msgs::msg::MoveItErrorCodes& error_code) const
 {
   ModelBasedPlanningContextPtr ctx =
@@ -120,7 +120,7 @@ void OMPLInterface::loadConstraintSamplers()
 
 bool OMPLInterface::loadPlannerConfiguration(const std::string& group_name, const std::string& planner_id,
                                              const std::map<std::string, std::string>& group_params,
-                                             planning_interface::PlannerConfigurationSettings& planner_config)
+                                             ::planning_interface::PlannerConfigurationSettings& planner_config)
 {
   rcl_interfaces::msg::ListParametersResult planner_params_result =
       node_->list_parameters({ parameter_namespace_ + ".planner_configs." + planner_id }, 2);
@@ -151,7 +151,7 @@ bool OMPLInterface::loadPlannerConfiguration(const std::string& group_name, cons
 void OMPLInterface::loadPlannerConfigurations()
 {
   // read the planning configuration for each group
-  planning_interface::PlannerConfigurationMap pconfig;
+  ::planning_interface::PlannerConfigurationMap pconfig;
   pconfig.clear();
 
   for (const std::string& group_name : robot_model_->getJointModelGroupNames())
@@ -204,7 +204,7 @@ void OMPLInterface::loadPlannerConfigurations()
     }
 
     // add default planner configuration
-    planning_interface::PlannerConfigurationSettings default_pc;
+    ::planning_interface::PlannerConfigurationSettings default_pc;
     std::string default_planner_id;
     if (node_->get_parameter(group_name_param + ".default_planner_config", default_planner_id))
     {
@@ -230,7 +230,7 @@ void OMPLInterface::loadPlannerConfigurations()
     {
       for (const auto& planner_id : config_names)
       {
-        planning_interface::PlannerConfigurationSettings pc;
+        ::planning_interface::PlannerConfigurationSettings pc;
         if (loadPlannerConfiguration(group_name, planner_id, specific_group_params, pc))
         {
           pconfig[pc.name] = pc;
