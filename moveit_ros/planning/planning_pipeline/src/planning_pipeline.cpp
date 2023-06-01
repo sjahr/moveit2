@@ -240,18 +240,16 @@ void planning_pipeline::PlanningPipeline::checkSolutionPaths(bool flag)
 
 bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::PlanningSceneConstPtr& planning_scene,
                                                        const planning_interface::MotionPlanRequest& req,
-                                                       planning_interface::MotionPlanResponse& res,
-                                                       const planning_interface::StateCostFn& state_cost_function) const
+                                                       planning_interface::MotionPlanResponse& res) const
 {
   std::vector<std::size_t> unused_adapter_added_state_index;
-  return generatePlan(planning_scene, req, res, unused_adapter_added_state_index, state_cost_function);
+  return generatePlan(planning_scene, req, res, unused_adapter_added_state_index);
 }
 
 bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::PlanningSceneConstPtr& planning_scene,
                                                        const planning_interface::MotionPlanRequest& req,
                                                        planning_interface::MotionPlanResponse& res,
-                                                       std::vector<std::size_t>& adapter_added_state_index,
-                                                       const planning_interface::StateCostFn& state_cost_function) const
+                                                       std::vector<std::size_t>& adapter_added_state_index) const
 {
   // Set planning pipeline active
   active_ = true;
@@ -277,8 +275,7 @@ bool planning_pipeline::PlanningPipeline::generatePlan(const planning_scene::Pla
   {
     if (adapter_chain_)
     {
-      solved = adapter_chain_->adaptAndPlan(planner_instance_, planning_scene, req, res, adapter_added_state_index,
-                                            state_cost_function);
+      solved = adapter_chain_->adaptAndPlan(planner_instance_, planning_scene, req, res, adapter_added_state_index);
       if (!adapter_added_state_index.empty())
       {
         std::stringstream ss;

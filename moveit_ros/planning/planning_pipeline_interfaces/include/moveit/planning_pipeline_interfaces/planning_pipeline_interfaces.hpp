@@ -74,8 +74,7 @@ typedef std::function<::planning_interface::MotionPlanResponse(
 ::planning_interface::MotionPlanResponse planWithSinglePipeline(
     const ::planning_interface::MotionPlanRequest& motion_plan_request,
     const ::planning_scene::PlanningSceneConstPtr& planning_scene,
-    const std::unordered_map<std::string, planning_pipeline::PlanningPipelinePtr>& planning_pipelines,
-    const ::planning_interface::StateCostFn& state_cost_function = ::planning_interface::StateCostFn());
+    const std::unordered_map<std::string, planning_pipeline::PlanningPipelinePtr>& planning_pipelines);
 
 /** \brief Function to solve multiple planning problems in parallel threads with multiple planning pipelines at the same
  time

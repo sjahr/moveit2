@@ -68,8 +68,7 @@ public:
 
   bool adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene,
                     const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
-                    std::vector<std::size_t>& added_path_index,
-                    const planning_interface::StateCostFn& state_cost_function) const override
+                    std::vector<std::size_t>& added_path_index) const override
   {
     RCLCPP_DEBUG(LOGGER, "Running '%s'", getDescription().c_str());
 
@@ -172,10 +171,10 @@ public:
     {
       planning_interface::MotionPlanRequest req2 = req;
       moveit::core::robotStateToRobotStateMsg(start_state, req2.data.start_state);
-      solved = planner(planning_scene, req2, res, state_cost_function);
+      solved = planner(planning_scene, req2, res);
     }
     else
-      solved = planner(planning_scene, req, res, state_cost_function);
+      solved = planner(planning_scene, req, res);
 
     // re-add the prefix state, if it was constructed
     if (prefix_state && res.trajectory && !res.trajectory->empty())

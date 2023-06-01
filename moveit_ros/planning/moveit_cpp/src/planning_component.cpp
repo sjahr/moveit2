@@ -141,8 +141,8 @@ planning_interface::MotionPlanResponse PlanningComponent::plan(const PlanRequest
   planning_scene->setCurrentState(request.data.start_state);
 
   // Run planning attempt
-  return moveit::planning_pipeline_interfaces::planWithSinglePipeline(
-      request, planning_scene, moveit_cpp_->getPlanningPipelines(), state_cost_function_);
+  return moveit::planning_pipeline_interfaces::planWithSinglePipeline(request, planning_scene,
+                                                                      moveit_cpp_->getPlanningPipelines());
 }
 
 planning_interface::MotionPlanResponse PlanningComponent::plan(
@@ -337,6 +337,8 @@ PlanningComponent::getMotionPlanRequest(const PlanRequestParameters& plan_reques
   request.data.goal_constraints = current_goal_constraints_;
   request.data.path_constraints = current_path_constraints_;
   request.data.trajectory_constraints = current_trajectory_constraints_;
+
+  request.state_cost_function = state_cost_function_;
 
   // Set start state
   moveit::core::RobotStatePtr start_state = considered_start_state_;

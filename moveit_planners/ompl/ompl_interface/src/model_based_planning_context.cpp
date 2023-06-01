@@ -333,7 +333,7 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
     cfg.erase(it);
 
     // Warn if this config will be overwritten
-    if (state_cost_function_ != nullptr)
+    if (request_.state_cost_function != nullptr)
     {
       RCLCPP_WARN(LOGGER, "%s: User defined optimization function will overwrite OMPL config optimization objective %s",
                   name_.c_str(), optimizer.c_str());
@@ -373,11 +373,12 @@ void ompl_interface::ModelBasedPlanningContext::useConfig()
     }
   }
 
-  if (state_cost_function_ != nullptr)
+  if (request_.state_cost_function != nullptr)
   {
-    RCLCPP_WARN(LOGGER, "%s: Use user defined optimization function!", name_.c_str());
+    // TODO(sjahr): Remove debugging print output
+    RCLCPP_WARN(LOGGER, "%s: Using user defined state cost function!", name_.c_str());
     objective = std::make_shared<ompl_interface::PlanningInterfaceObjective>(ompl_simple_setup_->getSpaceInformation(),
-                                                                             state_cost_function_);
+                                                                             request_.state_cost_function);
     ompl_simple_setup_->setOptimizationObjective(objective);
   }
 

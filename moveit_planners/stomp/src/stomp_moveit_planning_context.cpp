@@ -161,9 +161,11 @@ stomp::TaskPtr createStompTask(const stomp::StompConfiguration& config, StompPla
         planning_scene, group, constraints.getAllConstraints(), 1.0 /* constraint penalty */));
   }
 
-  if (context.getStateCostFunction() != nullptr)
+  if (context.getMotionPlanRequest().state_cost_function != nullptr)
   {
-    cost_functions.push_back(costs::get_cost_function_from_moveit_state_cost_fn(context.getStateCostFunction()));
+    std::cout << "Using user defined state cost function!" << std::endl;
+    cost_functions.push_back(
+        costs::get_cost_function_from_moveit_state_cost_fn(context.getMotionPlanRequest().state_cost_function));
   }
 
   // TODO(henningkayser): parameterize stddev

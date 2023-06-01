@@ -172,17 +172,15 @@ public:
     return "CHOMP Optimizer";
   }
 
-  bool adaptAndPlan(
-      const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& ps,
-      const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
-      std::vector<std::size_t>& /*added_path_index*/,
-      const planning_interface::StateCostFn& state_cost_function = planning_interface::StateCostFn()) const override
+  bool adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& ps,
+                    const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
+                    std::vector<std::size_t>& /*added_path_index*/) const override
   {
     RCLCPP_DEBUG(LOGGER, "CHOMP: adaptAndPlan ...");
 
     // following call to planner() calls the OMPL planner and stores the trajectory inside the MotionPlanResponse res
     // variable which is then used by CHOMP for optimization of the computed trajectory
-    if (!planner(ps, req, res, state_cost_function))
+    if (!planner(ps, req, res))
       return false;
 
     // create a hybrid collision detector to set the collision checker as hybrid

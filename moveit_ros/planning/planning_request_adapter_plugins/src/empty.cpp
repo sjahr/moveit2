@@ -49,10 +49,9 @@ public:
 
   bool adaptAndPlan(const PlannerFn& planner, const planning_scene::PlanningSceneConstPtr& planning_scene,
                     const planning_interface::MotionPlanRequest& req, planning_interface::MotionPlanResponse& res,
-                    std::vector<std::size_t>& /*added_path_index*/,
-                    const planning_interface::StateCostFn& state_cost_function) const override
+                    std::vector<std::size_t>& /*added_path_index*/) const override
   {
-    return planner(planning_scene, req, res, state_cost_function);
+    return planner(planning_scene, req, res);
   }
 
   void initialize(const rclcpp::Node::SharedPtr& /* node */, const std::string& /* parameter_namespace */) override
