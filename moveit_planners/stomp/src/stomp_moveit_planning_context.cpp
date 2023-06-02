@@ -163,6 +163,7 @@ stomp::TaskPtr createStompTask(const stomp::StompConfiguration& config, StompPla
 
   if (context.getMotionPlanRequest().state_cost_function != nullptr)
   {
+    // TODO(sjahr): Remove debugging print output
     std::cout << "Using user defined state cost function!" << std::endl;
     cost_functions.push_back(
         costs::get_cost_function_from_moveit_state_cost_fn(context.getMotionPlanRequest().state_cost_function));
