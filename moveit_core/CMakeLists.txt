@@ -16,6 +16,7 @@ find_package(fcl REQUIRED)
 find_package(generate_parameter_library REQUIRED)
 find_package(geometric_shapes REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(hpp-fcl REQUIRED)
 find_package(kdl_parser REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(OCTOMAP REQUIRED)
@@ -44,6 +45,7 @@ include(ConfigExtras.cmake)
 
 add_subdirectory(collision_detection_bullet)
 add_subdirectory(collision_detection_fcl)
+add_subdirectory(collision_detection_hpp_fcl)
 add_subdirectory(collision_detection)
 add_subdirectory(collision_distance_field)
 add_subdirectory(constraint_samplers)
@@ -76,6 +78,7 @@ install(
           moveit_collision_detection
           moveit_collision_detection_bullet
           moveit_collision_detection_fcl
+          moveit_collision_detection_hpp_fcl
           moveit_collision_distance_field
           moveit_constraint_samplers
           moveit_distance_field
@@ -109,6 +112,7 @@ ament_export_dependencies(
   Eigen3
   eigen3_cmake_module
   fcl
+  hpp-fcl
   generate_parameter_library
   geometric_shapes
   geometry_msgs
