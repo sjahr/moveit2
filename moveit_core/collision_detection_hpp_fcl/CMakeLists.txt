@@ -1,57 +1,70 @@
 add_library(moveit_collision_detection_hpp_fcl src/collision_common.cpp
                                                src/collision_env_hpp_fcl.cpp)
+target_include_directories(
+  moveit_collision_detection_hpp_fcl
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include/moveit_core>)
+include(GenerateExportHeader)
+generate_export_header(moveit_collision_detection_fcl)
+target_include_directories(
+  moveit_collision_detection_hpp_fcl
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 set_target_properties(moveit_collision_detection_hpp_fcl
                       PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
-
-target_link_libraries(
+ament_target_dependencies(
   moveit_collision_detection_hpp_fcl
-  moveit_collision_detection
-  ${catkin_LIBRARIES}
-  ${urdfdom_LIBRARIES}
-  ${urdfdom_headers_LIBRARIES}
-  hpp-fcl::hpp-fcl
-  ${Boost_LIBRARIES})
-add_dependencies(moveit_collision_detection_hpp_fcl ${catkin_EXPORTED_TARGETS})
+  rclcpp
+  rmw_implementation
+  urdf
+  urdfdom
+  urdfdom_headers
+  visualization_msgs)
+target_link_libraries(moveit_collision_detection_hpp_fcl
+                      moveit_collision_detection moveit_utils hpp-fcl::hpp-fcl)
 
 add_library(collision_detector_hpp_fcl_plugin
             src/collision_detector_hpp_fcl_plugin_loader.cpp)
 set_target_properties(collision_detector_hpp_fcl_plugin
                       PROPERTIES VERSION "${${PROJECT_NAME}_VERSION}")
-target_link_libraries(collision_detector_hpp_fcl_plugin ${catkin_LIBRARIES}
+ament_target_dependencies(collision_detector_hpp_fcl_plugin rclcpp urdf
+                          visualization_msgs pluginlib rmw_implementation)
+target_link_libraries(
+  collision_detector_hpp_fcl_plugin moveit_collision_detection_fcl
+  moveit_planning_scene moveit_utils)
+target_link_libraries(collision_detector_hpp_fcl_plugin moveit_utils
                       moveit_collision_detection_hpp_fcl moveit_planning_scene)
 
+install(DIRECTORY include/ DESTINATION include/moveit_core)
 install(
-  TARGETS moveit_collision_detection_hpp_fcl collision_detector_hpp_fcl_plugin
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/moveit_collision_detector_hpp_fcl_export.h
+  DESTINATION include/moveit_core)
 
-install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
-
-install(FILES ../collision_detector_hpp_fcl_description.xml
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
-if(CATKIN_ENABLE_TESTING)
-  catkin_add_gtest(test_hpp_fcl_collision_detection
-                   test/test_fcl_collision_detection_pr2.cpp)
-  target_link_libraries(test_hpp_fcl_collision_detection moveit_test_utils
-                        moveit_collision_detection_hpp_fcl ${Boost_LIBRARIES})
-  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # TODO: remove if transition to gtest's new API TYPED_TEST_SUITE_P is
-    # finished
-    target_compile_options(test_hpp_fcl_collision_detection
-                           PRIVATE -Wno-deprecated-declarations)
+if(BUILD_TESTING)
+  if(WIN32)
+    # set(APPEND_LIBRARY_DIRS
+    # "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+  else()
+    set(APPEND_LIBRARY_DIRS
+        "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_BINARY_DIR}/../collision_detection;${CMAKE_CURRENT_BINARY_DIR}/../robot_state;${CMAKE_CURRENT_BINARY_DIR}/../robot_model;${CMAKE_CURRENT_BINARY_DIR}/../utils"
+    )
   endif()
 
-  catkin_add_gtest(test_hpp_fcl_collision_detection_panda
-                   test/test_fcl_collision_detection_panda.cpp)
-  target_link_libraries(
-    test_hpp_fcl_collision_detection_panda moveit_test_utils
-    moveit_collision_detection_hpp_fcl ${Boost_LIBRARIES})
-  if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    # TODO: remove if transition to gtest's new API TYPED_TEST_SUITE_P is
-    # finished
-    target_compile_options(test_hpp_fcl_collision_detection_panda
-                           PRIVATE -Wno-deprecated-declarations)
+  # TODO: remove if transition to gtest's new API TYPED_TEST_SUITE_P is finished
+  if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+    add_compile_options(-Wno-deprecated-declarations)
   endif()
+
+  ament_add_gtest(test_fcl_collision_env test/test_fcl_env.cpp)
+  target_link_libraries(test_fcl_collision_env moveit_test_utils
+                        moveit_collision_detection_fcl)
+
+  ament_add_gtest(test_fcl_collision_detection
+                  test/test_fcl_collision_detection_pr2.cpp)
+  target_link_libraries(test_fcl_collision_detection moveit_test_utils
+                        moveit_collision_detection_fcl)
+
+  ament_add_gtest(test_fcl_collision_detection_panda
+                  test/test_fcl_collision_detection_panda.cpp)
+  target_link_libraries(test_fcl_collision_detection_panda moveit_test_utils
+                        moveit_collision_detection_fcl)
 endif()
