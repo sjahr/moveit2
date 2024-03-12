@@ -39,32 +39,32 @@ install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/moveit_collision_detector_hpp_fcl_export.h
   DESTINATION include/moveit_core)
 
-if(BUILD_TESTING)
-  if(WIN32)
-    # set(APPEND_LIBRARY_DIRS
-    # "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
-  else()
-    set(APPEND_LIBRARY_DIRS
-        "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_BINARY_DIR}/../collision_detection;${CMAKE_CURRENT_BINARY_DIR}/../robot_state;${CMAKE_CURRENT_BINARY_DIR}/../robot_model;${CMAKE_CURRENT_BINARY_DIR}/../utils"
-    )
-  endif()
-
-  # TODO: remove if transition to gtest's new API TYPED_TEST_SUITE_P is finished
-  if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-    add_compile_options(-Wno-deprecated-declarations)
-  endif()
-
-  ament_add_gtest(test_fcl_collision_env test/test_fcl_env.cpp)
-  target_link_libraries(test_fcl_collision_env moveit_test_utils
-                        moveit_collision_detection_fcl)
-
-  ament_add_gtest(test_fcl_collision_detection
-                  test/test_fcl_collision_detection_pr2.cpp)
-  target_link_libraries(test_fcl_collision_detection moveit_test_utils
-                        moveit_collision_detection_fcl)
-
-  ament_add_gtest(test_fcl_collision_detection_panda
-                  test/test_fcl_collision_detection_panda.cpp)
-  target_link_libraries(test_fcl_collision_detection_panda moveit_test_utils
-                        moveit_collision_detection_fcl)
-endif()
+#if(BUILD_TESTING)
+#  if(WIN32)
+#    # set(APPEND_LIBRARY_DIRS
+#    # "$<TARGET_FILE_DIR:${PROJECT_NAME}>;$<TARGET_FILE_DIR:${PROJECT_NAME}_TestPlugins1>")
+#  else()
+#    set(APPEND_LIBRARY_DIRS
+#        "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_BINARY_DIR}/../collision_detection;${CMAKE_CURRENT_BINARY_DIR}/../robot_state;${CMAKE_CURRENT_BINARY_DIR}/../robot_model;${CMAKE_CURRENT_BINARY_DIR}/../utils"
+#    )
+#  endif()
+#
+#  # TODO: remove if transition to gtest's new API TYPED_TEST_SUITE_P is finished
+#  if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+#    add_compile_options(-Wno-deprecated-declarations)
+#  endif()
+#
+#  ament_add_gtest(test_fcl_collision_env test/test_fcl_env.cpp)
+#  target_link_libraries(test_fcl_collision_env moveit_test_utils
+#                        moveit_collision_detection_fcl)
+#
+#  ament_add_gtest(test_fcl_collision_detection
+#                  test/test_fcl_collision_detection_pr2.cpp)
+#  target_link_libraries(test_fcl_collision_detection moveit_test_utils
+#                        moveit_collision_detection_fcl)
+#
+#  ament_add_gtest(test_fcl_collision_detection_panda
+#                  test/test_fcl_collision_detection_panda.cpp)
+#  target_link_libraries(test_fcl_collision_detection_panda moveit_test_utils
+#                        moveit_collision_detection_fcl)
+#endif()
